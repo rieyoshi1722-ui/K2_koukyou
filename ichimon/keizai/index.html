@@ -1,0 +1,354 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
+<title>公共 一問一答 経済編</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: 1枚のカードに「問い」→タップで「答え」。ボタンはカードの真下に置いて、指が届く範囲に収める。 */
+:root {
+  --paper: #f3f5f9; --sheet: #ffffff; --grid: #e0e6f1; --ink: #1c2540; --ink-soft: #5a6684;
+  --accent: #2b4da0; --accent-ink: #ffffff; --marker: #ffd4e4; --marker-ink: #7a1f4b;
+  --ok: #1f8a5b; --ok-bg: #dff3e8; --miss: #c8452f; --miss-bg: #fde4de; --line: #cbd4e6;
+  --font-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1626; --sheet: #172036; --grid: #223052; --ink: #e8ecf6; --ink-soft: #9aa6c4;
+    --accent: #8fb0ff; --accent-ink: #0f1626; --marker: #7a2d52; --marker-ink: #ffd9e8;
+    --ok: #6fd3a2; --ok-bg: #173a2c; --miss: #ff9a86; --miss-bg: #432019; --line: #2f3d63; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1626; --sheet: #172036; --grid: #223052; --ink: #e8ecf6; --ink-soft: #9aa6c4;
+  --accent: #8fb0ff; --accent-ink: #0f1626; --marker: #7a2d52; --marker-ink: #ffd9e8;
+  --ok: #6fd3a2; --ok-bg: #173a2c; --miss: #ff9a86; --miss-bg: #432019; --line: #2f3d63; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.8; padding-inline: 16px; padding-block: 0; touch-action: manipulation; }
+#app { max-width: 560px; margin: 0 auto; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; touch-action: manipulation; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+.bar { height: 6px; border-radius: 3px; background: var(--grid); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--ok); }
+
+.home { display: flex; flex-direction: column; gap: 18px; padding-block: 22px 40px; }
+.title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.title-row h1 { font-size: 28px; font-weight: 900; }
+.sub { color: var(--ink-soft); font-size: 13px; }
+.review-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 16px 18px; border-radius: 14px; background: var(--miss-bg); border: 2px solid var(--miss); }
+.review-card[disabled] { opacity: .55; cursor: default; }
+.review-card .big { font-family: var(--font-display); font-weight: 900; font-size: 19px; }
+.review-card .count { font-family: var(--font-display); font-weight: 900; font-size: 32px; font-variant-numeric: tabular-nums; color: var(--miss); }
+.review-card small { display: block; color: var(--ink-soft); font-size: 12.5px; line-height: 1.5; }
+.opt { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-soft); }
+.seg { display: inline-flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; }
+.seg button { padding: 4px 16px; font-weight: 700; font-size: 14px; color: var(--accent); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.sec-list { display: grid; gap: 10px; }
+.sec-btn { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; text-align: left; padding: 14px 16px; border-radius: 12px; background: var(--sheet); border: 1.5px solid var(--line); }
+.sec-btn .nm { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+.sec-btn .pg { font-size: 12px; color: var(--ink-soft); }
+.sec-btn .st { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-soft); text-align: right; }
+.sec-btn .bar { grid-column: 1 / -1; }
+.all-btn { padding: 15px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-weight: 900; font-size: 18px; }
+.note { font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+.quiz { padding-block: 0 56px; }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--paper); padding-block: 12px 8px; display: grid; gap: 8px; }
+.topbar .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.back { padding: 6px 10px; margin-left: -10px; font-weight: 700; color: var(--accent); }
+.counter { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ink-soft); }
+.card { background-color: var(--sheet); border: 1.5px solid var(--line); border-radius: 14px; padding: 18px 16px 20px; margin-top: 8px; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 24px 24px; background-position: -1px -1px; }
+.tag { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+.chip.warn { background: var(--marker); color: var(--marker-ink); }
+.q { font-family: var(--font-display); font-weight: 700; font-size: 21px; line-height: 1.7; margin: 0; overflow-wrap: anywhere; }
+.a-box { margin-top: 16px; padding: 14px 14px; border-radius: 10px; background: var(--marker); color: var(--marker-ink); font-family: var(--font-display); font-weight: 900; font-size: 22px; line-height: 1.6; overflow-wrap: anywhere; }
+.a-lbl { display: block; font-size: 12px; font-weight: 700; letter-spacing: .1em; opacity: .8; }
+.pending-note { margin: 12px 0 0; font-size: 12.5px; padding: 8px 10px; border-radius: 8px; background: var(--marker); color: var(--marker-ink); line-height: 1.5; }
+.actions { display: grid; gap: 10px; margin-top: 16px; }
+.actions.two { grid-template-columns: 1fr 1fr; }
+.act { min-height: 66px; padding: 15px 10px; border-radius: 14px; font-family: var(--font-display); font-weight: 900; font-size: 19px; }
+.act.reveal { background: var(--accent); color: var(--accent-ink); }
+.act.ok { background: var(--ok-bg); color: var(--ok); border: 2px solid var(--ok); }
+.act.miss { background: var(--miss-bg); color: var(--miss); border: 2px solid var(--miss); }
+.act:active { transform: translateY(1px); }
+
+.result { display: flex; flex-direction: column; gap: 18px; padding-block: 40px; }
+.result h2 { font-size: 26px; font-weight: 900; }
+.score { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.score div { padding: 14px; border-radius: 12px; text-align: center; font-family: var(--font-display); font-weight: 700; }
+.score .ok { background: var(--ok-bg); color: var(--ok); }
+.score .miss { background: var(--miss-bg); color: var(--miss); }
+.score b { display: block; font-size: 38px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.btns { display: grid; gap: 10px; }
+.btn2 { padding: 14px; border-radius: 12px; font-family: var(--font-display); font-weight: 700; font-size: 16px; border: 2px solid var(--accent); color: var(--accent); }
+.btn2.primary { background: var(--accent); color: var(--accent-ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head><body><div id="app"></div><script>
+// [章, 問題, 答え, 教科書で補った答え(1)]
+var SECTIONS = [
+  { id: "1", name: "公害問題", page: "p.1" },
+  { id: "2", name: "消費者主権と契約", page: "p.2-3" },
+  { id: "3", name: "消費者を守る法律と制度", page: "p.3-6" },
+  { id: "4", name: "財政の機能と財政政策", page: "p.7-8" },
+  { id: "5", name: "国の予算", page: "p.9-10" },
+  { id: "6", name: "租税", page: "p.10-11" },
+  { id: "7", name: "公債・財政投融資", page: "p.12-13" }
+];
+var RAW = [
+// ---- 1 公害問題 ----
+["1","相当範囲にわたる大気の汚染、騒音、悪臭などによって、人の健康や生活環境に被害が生じることを何という?","公害"],
+["1","典型七大公害は?","大気汚染・水質汚濁・土壌汚染・騒音・振動・地盤沈下・悪臭"],
+["1","1960年代の、公害に関する4つの裁判をまとめて何という?","四大公害訴訟"],
+["1","水俣病が起きた県は?","熊本・鹿児島県"],
+["1","水俣病の原因は?","工場排水中の有機水銀"],
+["1","水俣病の提訴と原告勝訴の年月は?","1969年6月に提訴、1973年3月に原告勝訴"],
+["1","四日市ぜんそくが起きた県は?","三重県"],
+["1","四日市ぜんそくの原因は?","工場からの亜硫酸ガス"],
+["1","四日市ぜんそくの提訴と原告勝訴の年月は?","1967年9月に提訴、1972年7月に原告勝訴"],
+["1","イタイイタイ病が起きた県は?","富山県"],
+["1","イタイイタイ病の原因は?","鉱山から流出したカドミウム"],
+["1","イタイイタイ病の提訴と原告勝訴の年月は?","1968年3月に提訴、1972年8月に原告勝訴"],
+["1","新潟水俣病が起きた県は?","新潟県"],
+["1","新潟水俣病の原因は?","工場排水中の有機水銀"],
+["1","新潟水俣病の提訴と原告勝訴の年月は?","1967年6月に提訴、1971年9月に原告勝訴"],
+["1","工場排水中の有機水銀が原因の、四大公害訴訟のうち2つは?","水俣病・新潟水俣病"],
+["1","公害防止の費用は、汚染物質を発生させた者が負担するべきという考え方は?","汚染者負担の原則(PPP)"],
+["1","汚染者負担の原則を、1972年に提唱した組織は?","OECD"],
+["1","社会的費用は、何と何を足したもの?","私的費用+外部費用"],
+["1","外部費用とは?","公害による被害額や公害対策費"],
+["1","私的費用とは?","生産費用"],
+["1","汚染者負担の原則で、社会的費用を負担するのは誰?","企業"],
+["1","故意や過失の有無にかかわらず、公害を発生させた企業に賠償する義務を負わせる原則は?","無過失責任の原則"],
+["1","無過失責任の原則は、公害のほかに、何による損害にも適用される?","製品の故障による損害"],
+["1","大規模な開発を行う前に、自然環境に与える影響を事前に予測・評価するものは?","環境影響評価(環境アセスメント)"],
+["1","環境アセスメントを、最初に制度化した自治体は?","川崎市(1976年)"],
+["1","環境影響評価法ができた年は?","1997年"],
+["1","開発の対象となっている土地を、住民が買い取って開発から守る取り組みは?","ナショナル・トラスト運動"],
+["1","ナショナル・トラスト運動は、何年にどこの国で始まった?","1895年、イギリス"],
+["1","日本初のナショナル・トラスト運動は、何年にどこで起きた?","1964年、鎌倉"],
+// ---- 2 消費者主権と契約 ----
+["2","契約とは?","人々の間で交わされる約束のこと"],
+["2","契約は、契約書がないと成立しない?","必ずしも必要ない(口頭でも双方が同意すれば成立する)"],
+["2","契約が成立すると、当事者間に発生するものは?","債権・債務"],
+["2","契約自由の原則の下で交わされる契約は、どうあるべきだという考え?","公権力が介入すべきではない"],
+["2","契約自由の原則の別名は?","私的自治の原則"],
+["2","個人間で法律上の関係を結ぶとき、何に基づいてのみ決定できるという原則?","個人の自由意志(契約自由の原則)"],
+["2","どのような財・サービスを生産するかを決めるのは消費者であるという考え方は?","消費者主権"],
+["2","1962年に「消費者の4つの権利」を提唱した人は?","アメリカのケネディ大統領"],
+["2","「消費者の4つの権利」は?","安全を求める権利・知らされる権利・選択できる権利・意見を聞いてもらう権利"],
+["2","健康や生命を脅かす商品の販売から保護される権利は?","安全を求める権利"],
+["2","虚偽や誤った広告から保護され、選択に必要な事実を知らされる権利は?","知らされる権利"],
+["2","競争的価格に接することが保障され、公正な価格で十分な品質やサービスが保障される権利は?","選択できる権利"],
+["2","政府が政策を立案する際に、消費者の利益が十分に考慮される権利は?","意見を聞いてもらう権利"],
+["2","4つの権利に、その後追加された権利と、追加した大統領は?","消費者教育を受ける権利(フォード大統領)"],
+["2","ケネディの4つの権利が、モデルにもなった日本の法律は?","消費者保護基本法(1968年)"],
+["2","消費者とメーカーの間に、商品の知識について大きな格差があることは?","情報の非対称性"],
+["2","消費者の欲望は、企業の宣伝活動に操られているという考え方は?","依存効果"],
+["2","依存効果を提唱した、アメリカの経済学者は?","ガルブレイス"],
+["2","自分の消費行動が、他人の消費行動にも影響を受けていることは?","デモンストレーション効果"],
+["3","店で買った商品を、一定期間内なら無条件で契約解除できる制度は?","クーリング・オフ"],
+["3","購入契約のあと、一定期間内なら理由がなくても解約できる制度は?","クーリング・オフ制度"],
+["3","クーリング・オフができる期間は、基本何日間?","8日間"],
+["3","マルチ商法のクーリング・オフ期間は何日間?","20日間"],
+["3","クーリング・オフが規定されている、分割払いでの購入に関する法律は?","割賦販売法"],
+["3","クーリング・オフが規定されている、2000年代に訪問販売法を全面改正した法律は?","特定商取引法"],
+["3","クーリング・オフの対象外:自分から○○に出向いて購入した場合","店舗"],
+["3","クーリング・オフの対象外:電話やインターネットなどでの購入は?","通信販売"],
+["3","クーリング・オフの対象外:何円未満の現金取引?","3000円未満"],
+["3","クーリング・オフの対象外:契約後どうした製品?","使用・消費した製品"],
+["3","「会員を増やすと儲かる」と言って商品を買わせる悪質商法は?","マルチ商法"],
+["3","「当選した人だけに」と言って商品を買わせる悪質商法は?","当選商法"],
+["3","デートを装って販売会場に誘い、高額商品を買わせる悪質商法は?","デート商法"],
+["3","「買わなければ不幸に」と言って商品を買わせる悪質商法は?","霊感商法"],
+["3","○○士などの資格が取れるとして、教材を買わせる悪質商法は?","士商法(資格商法)"],
+["3","商品を一方的に送り付けて、お金を払わせる悪質商法は?","ネガティブ・オプション(送り付け商法)"],
+["3","消費者被害を防ぐための「商品テスト」や全国の相談情報の分析を行う機関は?","国民生活センター"],
+["3","国民生活センターを設置しているのは?(国のどんな法人?)","国(独立行政法人)"],
+["3","消費生活センターを設置しているのは?","都道府県・市区町村"],
+["3","消費者を守るために、2000年に制定された、契約トラブル全般に使える法律は?","消費者契約法"],
+["3","消費者契約法で、まちがった説明で結んだ契約などを取り消せる権利は?","取消権"],
+["3","欠陥商品で消費者が被害を受けたとき、メーカーの過失がなくても責任を負わせる法律は?","製造物責任法(PL法)"],
+["3","PL法で、メーカーが責任を負う、過失の有無を問わない責任は?","無過失責任"],
+["3","2004年に「消費者保護基本法」が改正されてできた法律は?","消費者基本法"],
+["3","消費者基本法で、消費者の権利として明記されたことは?","消費者の自立支援"],
+["3","2009年に作られた、消費者行政を一本化する国の役所は?","消費者庁"],
+["3","消費者庁を中心に、消費者政策の意見を出す機関は?","消費者委員会"],
+["3","都道府県・市区町村が設置し、個別のトラブル相談の受付や事業者との交渉・あっせんを行う機関は?","消費生活センター"],
+["3","欠陥商品を売ったメーカーが、商品を回収・修理することは?","リコール"],
+["3","訪問販売や通信販売など、特定の取引でのトラブルを防ぐ法律は?","特定商取引法"],
+["3","2022年に、成年年齢が何歳に引き下げられた?","18歳"],
+["3","成年になる前の契約を、親の同意がなければ取り消せる権利は?","未成年者取消権"],
+["4","国や地方公共団体が、収入と支出を行う経済活動は?","財政"],
+["4","財政の3つの機能のうち、道路や公園など、民間が供給しにくいものを提供する機能は?","資源配分機能"],
+["4","財政の3つの機能のうち、税や社会保障で格差を小さくする機能は?","所得再分配機能"],
+["4","財政の3つの機能のうち、景気の波をおさえる機能は?","経済安定化機能"],
+["4","累進課税制度や社会保障制度が、自動的に景気をおさえるしくみは?","ビルト・イン・スタビライザー(自動安定化装置)"],
+["4","景気が悪いとき、政府が行う政策は?","減税や公共事業を増やす(拡張的財政政策)"],
+["4","景気が過熱しているとき、政府が行う政策は?","増税や公共事業を減らす(緊縮的財政政策)"],
+["4","政府が景気を調整するために、意図的に行う財政政策は?","フィスカル・ポリシー(裁量的財政政策)"],
+["5","国の1年間の収入と支出の計画は?","予算"],
+["5","予算の「会計年度」は、何月から何月まで?","4月1日〜翌年3月31日"],
+["5","国の基本的な仕事に使われる、予算のメインの会計は?","一般会計"],
+["5","特定の事業のために、一般会計とは別に作られる会計は?","特別会計"],
+["5","予算案を作るのは、どこ?","内閣"],
+["5","予算案を先に審議するのは、どちらの議院?","衆議院(衆議院の予算先議権)"],
+["5","年度の途中で、予算を追加・変更するために作る予算は?","補正予算"],
+["5","国会で予算が決まる前に、内閣が一時的に作る予算は?","暫定予算"],
+["6","国や地方公共団体が、国民から集めるお金は?","租税(税金)"],
+["6","税金を納める人と、負担する人が同じ税は?","直接税"],
+["6","税金を納める人と、負担する人が別の税は?","間接税"],
+["6","所得が高いほど、税率が高くなる制度は?","累進課税制度"],
+["6","所得に関係なく、同じ税率がかかる税の代表は?","消費税"],
+["6","税の負担の公平のうち、能力に応じて負担する考え方は?","垂直的公平"],
+["6","同じ収入の人は、同じ税を払う考え方は?","水平的公平"],
+["7","国の収入が足りないとき、国が借りるお金は?","公債(国債)"],
+["7","公債の発行で、道路などの公共事業の費用に使う公債は?","建設国債"],
+["7","国の赤字を埋めるために発行される公債は?","特例国債(赤字国債)"],
+["7","財政法で、原則として発行が認められている公債は?","建設国債"],
+["7","財政投融資は、国の何を元手にして行う?","財投債の発行などで集めた資金"],
+["7","国債を日本銀行が直接引き受けることは?","禁止されている"],
+];
+var CARDS = RAW.map(function (r, i) {
+  return { id: r[0] + "-" + (i + 1), sec: r[0], q: r[1], a: r[2], pending: r[3] === 1 };
+});
+var LS_KEY = "kokyo-ichimon-keizai-v1";
+var state = { review: [], ok: {}, order: "random" };
+function loadState() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    var s = JSON.parse(raw);
+    if (s && Array.isArray(s.review)) state = { review: s.review.slice(), ok: Object.assign({}, s.ok || {}), order: s.order === "order" ? "order" : "random" };
+  } catch (e) {}
+}
+function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+
+var view = "home", session = null;
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function secOf(id) { return SECTIONS.filter(function (s) { return s.id === id; })[0]; }
+function cardsOfSec(id) { return CARDS.filter(function (c) { return c.sec === id; }); }
+function reviewCards() { return CARDS.filter(function (c) { return state.review.indexOf(c.id) >= 0; }); }
+
+function start(cards, mode, label) {
+  if (!cards.length) return;
+  session = { cards: state.order === "order" && mode !== "review" ? cards.slice() : shuffle(cards), i: 0, mode: mode, label: label, okN: 0, missN: 0, shown: false, lockUntil: 0 };
+  view = "quiz";
+  render();
+}
+function reveal() { session.shown = true; session.lockUntil = Date.now() + 450; render(); }
+function answer(good) {
+  if (Date.now() < session.lockUntil) return;
+  var c = session.cards[session.i];
+  if (good) {
+    session.okN++;
+    state.ok[c.id] = (state.ok[c.id] || 0) + 1;
+    if (session.mode === "review") state.review = state.review.filter(function (x) { return x !== c.id; });
+  } else {
+    session.missN++;
+    if (state.review.indexOf(c.id) < 0) state.review.push(c.id);
+  }
+  session.i++;
+  session.shown = false;
+  if (session.i >= session.cards.length) view = "result";
+  render();
+  window.scrollTo(0, 0);
+  save();
+}
+
+function el(tag, props, kids) {
+  var e = document.createElement(tag);
+  if (props) Object.keys(props).forEach(function (k) {
+    if (props[k] === null || props[k] === undefined) return;
+    if (k === "class") e.className = props[k];
+    else if (k === "text") e.textContent = props[k];
+    else if (k.slice(0, 2) === "on") e.addEventListener(k.slice(2), props[k]);
+    else e.setAttribute(k, props[k]);
+  });
+  (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+
+function renderHome() {
+  var rc = reviewCards();
+  var optBtns = [["ランダム", "random"], ["順番どおり", "order"]].map(function (x) {
+    return el("button", { type: "button", text: x[0], "aria-pressed": String(state.order === x[1]), onclick: function () { state.order = x[1]; save(); render(); } });
+  });
+  var secBtns = SECTIONS.map(function (s) {
+    var all = cardsOfSec(s.id);
+    var done = all.filter(function (c) { return state.ok[c.id] > 0 && state.review.indexOf(c.id) < 0; }).length;
+    return el("button", { type: "button", class: "sec-btn", onclick: function () { start(all, "normal", s.name); } }, [
+      el("div", null, [el("div", { class: "nm", text: s.id + ". " + s.name }), el("div", { class: "pg", text: "プリント " + s.page + " ・ " + all.length + "問" })]),
+      el("div", { class: "st", text: "できた " + done + " / " + all.length }),
+      el("div", { class: "bar" }, [el("i", { style: "width:" + Math.round(done / all.length * 100) + "%" })])
+    ]);
+  });
+  var review = el("button", { type: "button", class: "review-card", onclick: function () { start(rc, "review", "復習フォルダ"); } }, [
+    el("div", null, [el("div", { class: "big", text: "復習フォルダ" }), el("small", { text: rc.length ? "まちがえた問題だけ出題。「できた」で外れます" : "まちがえた問題がここにたまります" })]),
+    el("div", { class: "count", text: String(rc.length) })
+  ]);
+  if (!rc.length) review.setAttribute("disabled", "");
+  return el("div", { class: "home" }, [
+    el("div", { class: "title-row" }, [el("h1", { text: "公共 一問一答" }), el("div", { class: "sub", text: "経済編 ・ " + CARDS.length + "問" })]),
+    review,
+    el("div", { class: "opt" }, [el("span", { text: "出す順番" }), el("div", { class: "seg", role: "group", "aria-label": "出す順番" }, optBtns)]),
+    el("div", { class: "sec-list" }, secBtns),
+    el("button", { type: "button", class: "all-btn", text: "ぜんぶ出題(" + CARDS.length + "問)", onclick: function () { start(CARDS, "normal", "ぜんぶ"); } }),
+    el("p", { class: "note", text: "問題を読んで、頭の中や紙に答えを書いてから「答えを見る」を押します。合っていたかは自分で選びます。進み具合は、このスマホの中に保存されます。" })
+  ]);
+}
+
+function renderQuiz() {
+  var c = session.cards[session.i];
+  var tags = [el("span", { class: "chip", text: secOf(c.sec).id + ". " + secOf(c.sec).name })];
+  if (session.mode === "review") tags.push(el("span", { class: "chip warn", text: "復習" }));
+  var kids = [el("div", { class: "tag" }, tags), el("p", { class: "q", text: c.q })];
+  if (session.shown) kids.push(el("div", { class: "a-box" }, [el("span", { class: "a-lbl", text: "答え" }), c.a]));
+  if (session.shown && c.pending) kids.push(el("p", { class: "pending-note", text: "この答えは、プリントが空欄だった部分を教科書の知識で埋めています。先生のノートと見比べてください。" }));
+  var top = el("div", { class: "topbar" }, [
+    el("div", { class: "row" }, [
+      el("button", { type: "button", class: "back", text: "‹ もどる", onclick: function () { view = "home"; render(); } }),
+      el("div", { class: "counter", text: (session.i + 1) + " / " + session.cards.length })
+    ]),
+    el("div", { class: "bar" }, [el("i", { style: "width:" + Math.round(session.i / session.cards.length * 100) + "%" })])
+  ]);
+  var actions = session.shown
+    ? el("div", { class: "actions two" }, [
+        el("button", { type: "button", class: "act miss", text: "まちがえた", onclick: function () { answer(false); } }),
+        el("button", { type: "button", class: "act ok", text: "できた", onclick: function () { answer(true); } })
+      ])
+    : el("div", { class: "actions" }, [el("button", { type: "button", class: "act reveal", text: "答えを見る", onclick: reveal })]);
+  return el("div", { class: "quiz" }, [top, el("div", { class: "card" }, kids), actions]);
+}
+
+function renderResult() {
+  var rc = reviewCards();
+  var btns = [];
+  if (rc.length) btns.push(el("button", { type: "button", class: "btn2 primary", text: "復習フォルダを出題(" + rc.length + "問)", onclick: function () { start(rc, "review", "復習フォルダ"); } }));
+  btns.push(el("button", { type: "button", class: "btn2" + (rc.length ? "" : " primary"), text: "もう一度", onclick: function () { start(session.cards, session.mode, session.label); } }));
+  btns.push(el("button", { type: "button", class: "btn2", text: "ホームへ", onclick: function () { view = "home"; render(); } }));
+  return el("div", { class: "result" }, [
+    el("h2", { text: session.label + " おつかれさま" }),
+    el("div", { class: "score" }, [
+      el("div", { class: "ok" }, [el("b", { text: String(session.okN) }), "できた"]),
+      el("div", { class: "miss" }, [el("b", { text: String(session.missN) }), "まちがえた"])
+    ]),
+    el("div", { class: "btns" }, btns)
+  ]);
+}
+
+function render() {
+  var app = document.getElementById("app");
+  app.textContent = "";
+  app.appendChild(view === "home" ? renderHome() : view === "quiz" ? renderQuiz() : renderResult());
+}
+loadState();
+render();
+</script></body></html>

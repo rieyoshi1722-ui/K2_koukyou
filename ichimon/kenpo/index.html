@@ -1,0 +1,463 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
+<title>公共 一問一答</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: 1枚のカードに「問い」→タップで「答え」。ボタンはカードの真下に置いて、指が届く範囲に収める。 */
+:root {
+  --paper: #f3f5f9; --sheet: #ffffff; --grid: #e0e6f1; --ink: #1c2540; --ink-soft: #5a6684;
+  --accent: #2b4da0; --accent-ink: #ffffff; --marker: #ffd4e4; --marker-ink: #7a1f4b;
+  --ok: #1f8a5b; --ok-bg: #dff3e8; --miss: #c8452f; --miss-bg: #fde4de; --line: #cbd4e6;
+  --font-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1626; --sheet: #172036; --grid: #223052; --ink: #e8ecf6; --ink-soft: #9aa6c4;
+    --accent: #8fb0ff; --accent-ink: #0f1626; --marker: #7a2d52; --marker-ink: #ffd9e8;
+    --ok: #6fd3a2; --ok-bg: #173a2c; --miss: #ff9a86; --miss-bg: #432019; --line: #2f3d63; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1626; --sheet: #172036; --grid: #223052; --ink: #e8ecf6; --ink-soft: #9aa6c4;
+  --accent: #8fb0ff; --accent-ink: #0f1626; --marker: #7a2d52; --marker-ink: #ffd9e8;
+  --ok: #6fd3a2; --ok-bg: #173a2c; --miss: #ff9a86; --miss-bg: #432019; --line: #2f3d63; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.8; padding-inline: 16px; padding-block: 0; touch-action: manipulation; }
+#app { max-width: 560px; margin: 0 auto; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; touch-action: manipulation; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+.bar { height: 6px; border-radius: 3px; background: var(--grid); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--ok); }
+
+.home { display: flex; flex-direction: column; gap: 18px; padding-block: 22px 40px; }
+.title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.title-row h1 { font-size: 28px; font-weight: 900; }
+.sub { color: var(--ink-soft); font-size: 13px; }
+.review-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 16px 18px; border-radius: 14px; background: var(--miss-bg); border: 2px solid var(--miss); }
+.review-card[disabled] { opacity: .55; cursor: default; }
+.review-card .big { font-family: var(--font-display); font-weight: 900; font-size: 19px; }
+.review-card .count { font-family: var(--font-display); font-weight: 900; font-size: 32px; font-variant-numeric: tabular-nums; color: var(--miss); }
+.review-card small { display: block; color: var(--ink-soft); font-size: 12.5px; line-height: 1.5; }
+.opt { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-soft); }
+.seg { display: inline-flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; }
+.seg button { padding: 4px 16px; font-weight: 700; font-size: 14px; color: var(--accent); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.sec-list { display: grid; gap: 10px; }
+.sec-btn { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; text-align: left; padding: 14px 16px; border-radius: 12px; background: var(--sheet); border: 1.5px solid var(--line); }
+.sec-btn .nm { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+.sec-btn .pg { font-size: 12px; color: var(--ink-soft); }
+.sec-btn .st { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-soft); text-align: right; }
+.sec-btn .bar { grid-column: 1 / -1; }
+.all-btn { padding: 15px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-weight: 900; font-size: 18px; }
+.note { font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+.quiz { padding-block: 0 56px; }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--paper); padding-block: 12px 8px; display: grid; gap: 8px; }
+.topbar .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.back { padding: 6px 10px; margin-left: -10px; font-weight: 700; color: var(--accent); }
+.counter { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ink-soft); }
+.card { background-color: var(--sheet); border: 1.5px solid var(--line); border-radius: 14px; padding: 18px 16px 20px; margin-top: 8px; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 24px 24px; background-position: -1px -1px; }
+.tag { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+.chip.warn { background: var(--marker); color: var(--marker-ink); }
+.q { font-family: var(--font-display); font-weight: 700; font-size: 21px; line-height: 1.7; margin: 0; overflow-wrap: anywhere; }
+.a-box { margin-top: 16px; padding: 14px 14px; border-radius: 10px; background: var(--marker); color: var(--marker-ink); font-family: var(--font-display); font-weight: 900; font-size: 22px; line-height: 1.6; overflow-wrap: anywhere; }
+.a-lbl { display: block; font-size: 12px; font-weight: 700; letter-spacing: .1em; opacity: .8; }
+.pending-note { margin: 12px 0 0; font-size: 12.5px; padding: 8px 10px; border-radius: 8px; background: var(--marker); color: var(--marker-ink); line-height: 1.5; }
+.actions { display: grid; gap: 10px; margin-top: 16px; }
+.actions.two { grid-template-columns: 1fr 1fr; }
+.act { min-height: 66px; padding: 15px 10px; border-radius: 14px; font-family: var(--font-display); font-weight: 900; font-size: 19px; }
+.act.reveal { background: var(--accent); color: var(--accent-ink); }
+.act.ok { background: var(--ok-bg); color: var(--ok); border: 2px solid var(--ok); }
+.act.miss { background: var(--miss-bg); color: var(--miss); border: 2px solid var(--miss); }
+.act:active { transform: translateY(1px); }
+
+.result { display: flex; flex-direction: column; gap: 18px; padding-block: 40px; }
+.result h2 { font-size: 26px; font-weight: 900; }
+.score { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.score div { padding: 14px; border-radius: 12px; text-align: center; font-family: var(--font-display); font-weight: 700; }
+.score .ok { background: var(--ok-bg); color: var(--ok); }
+.score .miss { background: var(--miss-bg); color: var(--miss); }
+.score b { display: block; font-size: 38px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.btns { display: grid; gap: 10px; }
+.btn2 { padding: 14px; border-radius: 12px; font-family: var(--font-display); font-weight: 700; font-size: 16px; border: 2px solid var(--accent); color: var(--accent); }
+.btn2.primary { background: var(--accent); color: var(--accent-ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head><body><div id="app"></div><script>
+// [章, 問題, 答え, 教科書で補った答え(1)]
+var SECTIONS = [
+  { id: "1", name: "近代憲法の考え方", page: "p.1-2" },
+  { id: "2", name: "日本国憲法の成り立ち", page: "p.3-5" },
+  { id: "3", name: "平等に生きる権利", page: "p.6" },
+  { id: "4", name: "精神活動の自由", page: "p.7" },
+  { id: "5", name: "身体・経済活動の自由", page: "p.8-9" },
+  { id: "6", name: "人間らしく生きる権利", page: "p.9-10" },
+  { id: "7", name: "請求権・参政権・新しい人権", page: "p.10-12" }
+];
+var RAW = [
+// ---- 1 近代憲法の考え方 ----
+["1","人間らしく生きる権利を、生まれながらにして持っている。この権利を何という?","自然権"],
+["1","自然権の考えは、何世紀の西洋で生まれた?","17〜18世紀"],
+["1","自然権を守るために、人々が互いに約束をして国家をつくるという考えは?","社会契約説"],
+["1","社会契約説と対立する考えは?","王権神授説"],
+["1","社会契約をまとめたものは?","憲法"],
+["1","ホッブズは何の国の人?","イギリス(英)"],
+["1","ホッブズの主著は?","『リヴァイアサン』"],
+["1","ホッブズが考えた自然状態を、一言でいうと?","「万人の万人に対する闘争」(弱肉強食の状態)"],
+["1","ホッブズは、人々が自然権をどうすると考えた?","ほぼすべてを主権者に譲渡し、強力な国家をつくる(君主に絶対服従)"],
+["1","ホッブズの理論は、結果的に何を擁護することになった?","絶対王政"],
+["1","ロックは何の国の人?","イギリス(英)"],
+["1","ロックの主著は?","『市民政府二論』(統治二論)"],
+["1","ロックが考えた自然状態は?","人間は自由で平等。生命・財産・自由を維持する権利を持ち、互いに共存"],
+["1","ロックの社会契約では、人々は何をつくる?","政府(自然権を保障する役割を政府に委ねる)"],
+["1","政府が人々の権利を侵害したら抵抗できる権利を何という?","抵抗権(革命権)"],
+["1","ロックが主張した民主制は、直接民主制と間接民主制のどっち?","間接民主制"],
+["1","ロックが影響を与えた革命は?","アメリカ独立革命"],
+["1","イギリスでは、王と何が対立していた?","議会"],
+["1","ルソーは何の国の人?","フランス(仏)"],
+["1","ルソーの主著は?","『社会契約論』"],
+["1","ルソーが考えた自然状態は?","人は本来、自由で平等だが、私有財産により不平等が生じる"],
+["1","ルソーの社会契約で、人々が従うものは?","一般意志"],
+["1","ルソーがめざした民主制は?","直接民主制"],
+["1","ルソーが影響を与えた革命は?","フランス革命"],
+["1","政府の役割は何だとされた?","個人の権利や自由を守ること"],
+["1","憲法によって国家権力を制限しようとする考え方を何という?","近代立憲主義"],
+["1","君主や貴族ではなく、国民が国の最高権力であるとする原則は?","国民主権"],
+["1","国民主権に基づく政治のあり方を何という?","民主主義"],
+["1","選挙で選ばれた代表者が、多数決で議会で物事を決める制度は?","代表制民主主義(間接民主制)"],
+["1","多数決の濫用で少数者の権利が侵害されるのを防ぐため、重視される理念は?","基本的人権の尊重"],
+["1","権力を1つの機関に集中させず、2つ以上に分散する考え方は?","権力分立"],
+["1","ロックの『統治二論』は何年?","1690年"],
+["1","ロックの権力二分論の内容は?","立法権(議会)を最高権力として、執行権・同盟権(国王)を抑制する"],
+["1","ロックの主張に対して、行政権と司法権も分けるべきだと説いたのは?","モンテスキュー"],
+["1","モンテスキューの主著と、その年は?","『法の精神』(1748年)"],
+["1","三権分立論とは?","立法権・行政権・司法権を、それぞれ別の機関に分担させる考え方"],
+["1","三権が互いに行うことは?","抑制と均衡(チェック・アンド・バランス)"],
+["1","三権分立で、立法権・行政権・司法権を担うのはそれぞれ?","議会・国王(行政)・裁判所"],
+["1","イギリスやフランスの絶対王政のように、人が支配する政治を何という?","人の支配"],
+["1","国家権力も従うべきルール(法)によって政治を行う考え方は?","法の支配"],
+["1","法の支配で、法(憲法)の内容に必要なことは?","合理的であること"],
+// ---- 2 日本国憲法の成り立ち ----
+["2","大日本帝国憲法の下で、戦争を招いた理由は?","拡大する軍部を、内閣などが止められなかったから"],
+["2","1945年8月14日に受諾を決めた宣言は?","ポツダム宣言"],
+["2","1945年8月30日から、間接統治を始めたのは?","GHQのマッカーサー元帥"],
+["2","1946年1月1日に、天皇が出した宣言は?","人間宣言"],
+["2","1946年2月8日にGHQへ提出した憲法改正要綱は?","松本試案"],
+["2","GHQが松本試案を却下したあと、手渡したものは?","マッカーサー草案"],
+["2","憲法改正案が提出されたのは、第何回の帝国議会?","第90回"],
+["2","日本国憲法の公布日と、現在その日は何の日?","1946年11月3日(文化の日)"],
+["2","日本国憲法の施行日と、現在その日は何の日?","1947年5月3日(憲法記念日)"],
+["2","日本国憲法の下で、初めて当選した女性議員は何名?","39名"],
+["2","天皇制を無くそうとした連合国の機関は?","極東委員会"],
+["2","天皇制を存続させる立場だったのは?","GHQ"],
+["2","大日本帝国憲法の施行日は?","1890年11月29日"],
+["2","君主が定める憲法を何という?","欽定憲法"],
+["2","国民が定める憲法を何という?","民定憲法"],
+["2","大日本帝国憲法の主権者は?","天皇(統治権を総攬した)"],
+["2","日本国憲法で、天皇はどういう地位?","日本国・日本国民統合の象徴"],
+["2","大日本帝国憲法で、国民の権利が法律で制限できたことを何という?","法律の留保"],
+["2","大日本帝国憲法の国民の義務は?","教育・兵役・納税"],
+["2","日本国憲法の国民の義務は?","普通教育を受けさせる・納税・勤労"],
+["2","大日本帝国憲法で、天皇が軍隊を指揮・命令する権限は?","統帥権"],
+["2","日本国憲法では、軍隊についてどう定めている?","戦争放棄、戦力不保持と交戦権の否認"],
+["2","大日本帝国憲法での国会の位置づけは?","天皇の協賛機関"],
+["2","日本国憲法での国会の位置づけは?","国権の最高機関・唯一の立法機関"],
+["2","日本国憲法での内閣は、何をする機関?","行政機関(行政権を執行)"],
+["2","日本国憲法で、裁判所について保障されていることは?","司法権の独立"],
+["2","日本国憲法の三大原理は?","国民主権・平和主義・基本的人権の尊重"],
+["2","「主権」の3つの意味のうち、1つめは?","国家が最終的な意思を決定する権力"],
+["2","「主権」の3つの意味のうち、3つめは?","他国からのどのような干渉も許さない独立した権力"],
+["2","第1条で、天皇は日本国の何?","象徴(日本国民統合の象徴)"],
+["2","第1条で、天皇の地位は誰の総意に基づく?","主権の存する日本国民"],
+["2","第1条から導かれる、民主制の形は?","代表民主制"],
+["2","第9条(1)で、永久に放棄するものは?","国権の発動たる戦争と、武力による威嚇又は武力の行使"],
+["2","第9条(2)で、保持しないものは?","陸海空軍その他の戦力"],
+["2","第9条(2)で、認めないものは?","国の交戦権"],
+["2","第9条の※1・※2・※3は、それぞれ何?","戦争放棄・戦力の不保持・交戦権の否認"],
+["2","自衛隊は、プリントでは何と書いてあった?","警察力を超える実力部隊"],
+["2","第11条と第13条は、まとめて何と呼ばれる?","一般原理"],
+["2","第11条で、人権はどのような権利として与えられる?","侵すことのできない永久の権利"],
+["2","第13条で、生命・自由・幸福追求の権利が制限されるのはどんなとき?","公共の福祉に反するとき"],
+["2","公共の福祉とは?","社会全体の利益"],
+["2","憲法は国の何として位置づけられている?","最高法規"],
+["2","憲法改正の手続きを定めた法律は?","国民投票法"],
+["2","国民投票法は何年に制定され、何歳以上が投票できる?","2007年に制定、満18歳以上"],
+["2","通常の法律改正より厳しい改正要件の憲法を何という?","硬性憲法"],
+["2","硬性憲法と反対の憲法は?また、その例は?","軟性憲法(例:イギリス)"],
+["2","日本の憲法は何と呼ばれている?(改正されていないことから)","世界最高齢の憲法"],
+["2","憲法改正原案の発議に必要な賛成は?","衆議院議員100名以上、参議院議員50名以上"],
+["2","国会が憲法改正を発議するのに必要な賛成は?","各議院の総議員の3分の2以上"],
+["2","国民投票の期日は、発議後何日以内に決める?","60日から180日以内"],
+["2","国民投票で改正が成立する条件は?","有効投票総数の過半数の賛成"],
+["2","憲法改正が成立したら、誰が公布する?","天皇(国民の名において)"],
+["2","有効投票数とは?","投票総数から無効票を差し引いた票数"],
+["2","投票総数200、無効票4のとき、過半数は何票以上?","99票以上(有効投票数196の過半数)"],
+// ---- 3 平等に生きる権利 ----
+["3","形式的平等(機会の平等)とは?","個性や属性にかかわらず、すべての人を同じように扱うこと"],
+["3","形式的平等の結果、何が起こった?","貧困の格差拡大"],
+["3","実質的平等(結果の平等)とは?","貧富の差の解消など、国の介入により平等を実現すること"],
+["3","実質的平等は、何世紀の何における平等の概念?","20世紀の福祉国家"],
+["3","憲法の基本的人権の根幹にある原理は?","個人の尊重(第13条)"],
+["3","法の下の平等は、第何条?","第14条"],
+["3","第14条で、差別されないとされる5つのうち、「門地」とは?","家柄・生まれ"],
+["3","両性の本質的平等は、第何条?","第24条"],
+["3","第24条で、婚姻が成立する条件は?","両性の合意"],
+["3","参政権の平等は、第何条?","第44条"],
+["3","1985年に制定された、男女差別をなくす法律は?","男女雇用機会均等法"],
+["3","男女雇用機会均等法は、何の批准のために制定された?","女子差別撤廃条約(1979年)"],
+["3","男女雇用機会均等法で禁止された差別は?","募集・採用・配置・昇進に関する差別"],
+["3","1999年に制定された、雇用面以外の男女差別を解消する法律は?","男女共同参画社会基本法"],
+["3","2019年の法律で、アイヌの人々が初めて明記された言葉は?","「先住民」"],
+["3","2019年に制定された、アイヌに関する法律は?","アイヌ施策推進法"],
+["3","1997年に制定された、アイヌに関する法律は?","アイヌ文化振興法"],
+["3","2013年に制定された、障がいのある人への差別をなくす法律は?","障害者差別解消法"],
+["3","障害者差別解消法で提供を求められるものは?","合理的配慮"],
+["3","合理的配慮の提供で普及する考え方は?","ノーマライゼーション"],
+// ---- 4 精神活動の自由 ----
+["4","「国家からの自由」という考え方を中心とした権利は?","自由権"],
+["4","自由権は大きく3つに分類できる。何と何と何?","精神的自由・身体的自由・経済的自由"],
+["4","思想・良心の自由は、第何条?","第19条"],
+["4","思想・良心の自由は、どこまで処罰されない?","内心にとどまる限り"],
+["4","思想・良心の自由の判例は?","三菱樹脂事件"],
+["4","信教の自由は、第何条?","第20条"],
+["4","信教の自由に含まれる3つの自由は?","信仰の自由、宗教的行為の自由、宗教的結社の自由"],
+["4","国家と宗教の結びつきを否定する原則は?","政教分離の原則"],
+["4","政教分離の原則の判例は?","津地鎮祭訴訟"],
+["4","政教分離の原則ができた反省とは?","大日本帝国憲法下で神道が事実上の国教とされ、信教の自由が制約されたこと"],
+["4","表現の自由は、第何条?","第21条"],
+["4","表現の自由で保障されるものは?","集会、結社、言論、出版などの自由"],
+["4","人々が自由に意見を述べ議論することは、何の基礎?","民主主義"],
+["4","行政権が表現の内容を審査し、制限することを何という?","検閲(許されない)"],
+["4","検閲の判例は?","家永教科書裁判"],
+["4","国や自治体から情報を受け取る権利は?","知る権利"],
+["4","知る権利を受けて、1999年に制定された法律は?","情報公開法"],
+["4","デモなどで同じ考えの人々が一時的に集まる自由は?","集会の自由"],
+["4","政党などの組織や団体をつくる自由は?","結社の自由"],
+["4","学問の自由は、第何条?","第23条"],
+["4","学問の自由で保障されるものは?","学問研究、研究発表、教授の自由"],
+["4","学問の自由の判例は?","東大ポポロ事件"],
+// ---- 5 身体・経済活動の自由 ----
+["5","身体的自由とは、何からの自由を保障すること?","奴隷的拘束および苦役からの自由"],
+["5","身体的自由が規定された反省とは?","明治憲法下で、拷問による自白の強要などが行われたこと"],
+["5","奴隷的拘束および苦役からの自由は、第何条?","第18条"],
+["5","法定手続きの保障は、第何条?","第31条"],
+["5","刑罰を科すには、何によらなければならない?","法律で定めた適切な手続き(法定手続き)"],
+["5","逮捕の要件は、第何条?","第33条"],
+["5","現行犯以外は、何がなければ逮捕されない?","令状"],
+["5","抑留・拘禁の要件、不法拘禁に対する保障(弁護人の依頼など)は、第何条?","第34条"],
+["5","住居の不可侵は、第何条?","第35条"],
+["5","拷問及び残虐刑の禁止は、第何条?","第36条"],
+["5","公開裁判を受ける権利、弁護人を依頼する権利(刑事被告人の権利)は、第何条?","第37条"],
+["5","自己に不利益な供述を強要されない権利は?","黙秘権(第38条)"],
+["5","強制・拷問・脅迫による自白は、どうなる?","証拠にはならない(第38条)"],
+["5","遡及処罰の禁止と一事不再理は、第何条?","第39条"],
+["5","一事不再理とは?","すでに無罪となった行為や、同一の犯罪について再び処罰できないこと"],
+["5","有罪の判決があるまでは無罪として扱う原則は?","推定無罪の原則"],
+["5","法定手続きの保障は、何を防ぐために不可欠?","違法捜査などの人権侵害"],
+["5","1989年に国連で採択された条約は?","死刑廃止条約"],
+["5","日本は死刑を廃止している?","廃止していない"],
+["5","死刑の基準として、9つの基準で判断されるものは?","永山基準"],
+["5","刑事訴訟法で、死刑執行は判決確定後何か月以内?","6か月以内"],
+["5","近年、死刑執行までにかかる期間は平均どれくらい?","7年9か月"],
+["5","経済的自由に含まれる3つは?","職業選択の自由・居住移転の自由・財産権の保障"],
+["5","職業選択の自由と居住・移転の自由は、第何条?","第22条"],
+["5","財産権の保障は、第何条?","第29条"],
+["5","経済的自由は、何によって制限される?","公共の福祉"],
+["5","経済的自由の判例は?","薬事法違憲訴訟"],
+["5","無制限の経済的自由によって起こる問題は?","貧富の格差や社会的な不公平"],
+// ---- 6 人間らしく生きる権利 ----
+["6","自由な経済活動を基本とする資本主義がもたらしたものは?","貧富の差(経済的弱者を生み出した)"],
+["6","「国家による自由」の考え方を反映させた権利は?","社会権"],
+["6","社会権とは、どんな権利?","国に対して、積極的な施策を要求する権利"],
+["6","生存権は、第何条?","第25条"],
+["6","第25条で保障される権利は?","健康で文化的な最低限度の生活を営む権利"],
+["6","生存権を実現するために、国に義務付けているものは?","社会保障施策の推進"],
+["6","生活保護水準が低すぎるとして争った判例は?","朝日訴訟"],
+["6","朝日訴訟は、別名何と呼ばれる?","人間訴訟"],
+["6","朝日訴訟の最高裁(1967年)の判断は?","上告棄却"],
+["6","「憲法25条は国の政策上の指針に過ぎない」とする説は?","プログラム規定説"],
+["6","教育を受ける権利は、第何条?","第26条"],
+["6","第26条で、ひとしく教育を受ける権利は何に応じて?","能力",1],
+["6","子どもに教育を受けさせる義務に基づく制度は?","義務教育",1],
+["6","義務教育は、どうすると第26条に書いてある?","無償とする",1],
+["6","勤労の権利と義務は、第何条?","第27条",1],
+["6","労働基本権は、第何条?","第28条",1],
+["6","労働基本権の3つは?","団結権・団体交渉権・団体行動権(争議権)",1],
+["6","労働組合を結成する権利は?","団結権",1],
+["6","労働組合が使用者側と労働条件などの交渉をする権利は?","団体交渉権",1],
+["6","ストライキなどの争議行動を行うことができる権利は?","団体行動権(争議権)",1],
+// ---- 7 請求権・参政権・新しい人権 ----
+["7","基本的人権が侵害されたとき、国に賠償請求などができる権利は?","国務請求権(請求権)",1],
+["7","公務員の不法行為による損害の賠償を求める権利と、その条文は?","国家賠償請求権(第17条)",1],
+["7","裁判を受ける権利は、第何条?","第32条",1],
+["7","無罪判決を受けたとき、国に補償を求める権利と、その条文は?","刑事補償請求権(第40条)",1],
+["7","国民が政治に参加する権利は?","参政権",1],
+["7","参政権は、別名何と呼ばれる?","「国家への自由」",1],
+["7","公務員の選定・罷免は国民固有の権利。第何条?","第15条",1],
+["7","損害の救済、規則の制定・廃止などを求める権利と、その条文は?","請願権(第16条)",1],
+["7","最高裁判所裁判官の国民審査は、第何条?いつ行われる?","第79条(衆議院議員選挙のとき)",1],
+["7","1つの地方自治体のみに適用される法についての投票は?","特別法の住民投票(第95条)",1],
+["7","憲法改正の国民投票は、第何条?","第96条",1],
+["7","日本国憲法が定める国民の義務3つは?","子どもに普通教育を受けさせる義務・勤労の義務・納税の義務",1],
+["7","納税の義務は、第何条?","第30条",1],
+["7","新しい人権とは?","憲法に明確な規定はないが、新しく主張されるようになった人権",1],
+["7","新しい人権の根拠とされる、第13条の権利は?","幸福追求権",1],
+["7","良好な環境の下で生活できる権利は?","環境権",1],
+["7","環境権が提唱されるようになった背景は?","高度経済成長に伴う、深刻な公害問題",1],
+["7","環境権の判例は?","国立マンション訴訟",1],
+["7","環境権を受けて、1993年に制定された法律は?","環境基本法",1],
+["7","私生活などの個人情報をみだりに公開されない権利は?","プライバシー権",1],
+["7","プライバシー権は、憲法第何条を根拠に発展した?","第13条",1],
+["7","プライバシー権は、どのような権利と理解される?","自己情報コントロール権",1],
+["7","近年、プライバシー権から主張されるようになった権利は?","忘れられる権利",1],
+["7","プライバシー権の判例は?","『宴のあと』事件",1],
+["7","プライバシー権を受けて、2003年に制定された法律は?","個人情報保護法",1],
+["7","私的な事柄について、公権力の介入を受けずに自ら決定できる権利は?","自己決定権",1],
+["7","自己決定権の例は?","インフォームド・コンセント、尊厳死、臓器提供の意思表示など",1],
+["7","国民が情報を受け取る権利は?","知る権利",1],
+["7","知る権利を受けて、1999年に制定された法律は?","情報公開法",1]
+];
+var CARDS = RAW.map(function (r, i) {
+  return { id: r[0] + "-" + (i + 1), sec: r[0], q: r[1], a: r[2], pending: r[3] === 1 };
+});
+var LS_KEY = "kokyo-ichimon-v1";
+var state = { review: [], ok: {}, order: "random" };
+function loadState() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    var s = JSON.parse(raw);
+    if (s && Array.isArray(s.review)) state = { review: s.review.slice(), ok: Object.assign({}, s.ok || {}), order: s.order === "order" ? "order" : "random" };
+  } catch (e) {}
+}
+function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+
+var view = "home", session = null;
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function secOf(id) { return SECTIONS.filter(function (s) { return s.id === id; })[0]; }
+function cardsOfSec(id) { return CARDS.filter(function (c) { return c.sec === id; }); }
+function reviewCards() { return CARDS.filter(function (c) { return state.review.indexOf(c.id) >= 0; }); }
+
+function start(cards, mode, label) {
+  if (!cards.length) return;
+  session = { cards: state.order === "order" && mode !== "review" ? cards.slice() : shuffle(cards), i: 0, mode: mode, label: label, okN: 0, missN: 0, shown: false, lockUntil: 0 };
+  view = "quiz";
+  render();
+}
+function reveal() { session.shown = true; session.lockUntil = Date.now() + 450; render(); }
+function answer(good) {
+  if (Date.now() < session.lockUntil) return;
+  var c = session.cards[session.i];
+  if (good) {
+    session.okN++;
+    state.ok[c.id] = (state.ok[c.id] || 0) + 1;
+    if (session.mode === "review") state.review = state.review.filter(function (x) { return x !== c.id; });
+  } else {
+    session.missN++;
+    if (state.review.indexOf(c.id) < 0) state.review.push(c.id);
+  }
+  session.i++;
+  session.shown = false;
+  if (session.i >= session.cards.length) view = "result";
+  render();
+  window.scrollTo(0, 0);
+  save();
+}
+
+function el(tag, props, kids) {
+  var e = document.createElement(tag);
+  if (props) Object.keys(props).forEach(function (k) {
+    if (props[k] === null || props[k] === undefined) return;
+    if (k === "class") e.className = props[k];
+    else if (k === "text") e.textContent = props[k];
+    else if (k.slice(0, 2) === "on") e.addEventListener(k.slice(2), props[k]);
+    else e.setAttribute(k, props[k]);
+  });
+  (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+
+function renderHome() {
+  var rc = reviewCards();
+  var optBtns = [["ランダム", "random"], ["順番どおり", "order"]].map(function (x) {
+    return el("button", { type: "button", text: x[0], "aria-pressed": String(state.order === x[1]), onclick: function () { state.order = x[1]; save(); render(); } });
+  });
+  var secBtns = SECTIONS.map(function (s) {
+    var all = cardsOfSec(s.id);
+    var done = all.filter(function (c) { return state.ok[c.id] > 0 && state.review.indexOf(c.id) < 0; }).length;
+    return el("button", { type: "button", class: "sec-btn", onclick: function () { start(all, "normal", s.name); } }, [
+      el("div", null, [el("div", { class: "nm", text: s.id + ". " + s.name }), el("div", { class: "pg", text: "プリント " + s.page + " ・ " + all.length + "問" })]),
+      el("div", { class: "st", text: "できた " + done + " / " + all.length }),
+      el("div", { class: "bar" }, [el("i", { style: "width:" + Math.round(done / all.length * 100) + "%" })])
+    ]);
+  });
+  var review = el("button", { type: "button", class: "review-card", onclick: function () { start(rc, "review", "復習フォルダ"); } }, [
+    el("div", null, [el("div", { class: "big", text: "復習フォルダ" }), el("small", { text: rc.length ? "まちがえた問題だけ出題。「できた」で外れます" : "まちがえた問題がここにたまります" })]),
+    el("div", { class: "count", text: String(rc.length) })
+  ]);
+  if (!rc.length) review.setAttribute("disabled", "");
+  return el("div", { class: "home" }, [
+    el("div", { class: "title-row" }, [el("h1", { text: "公共 一問一答" }), el("div", { class: "sub", text: "第3章 基本原理 ・ " + CARDS.length + "問" })]),
+    review,
+    el("div", { class: "opt" }, [el("span", { text: "出す順番" }), el("div", { class: "seg", role: "group", "aria-label": "出す順番" }, optBtns)]),
+    el("div", { class: "sec-list" }, secBtns),
+    el("button", { type: "button", class: "all-btn", text: "ぜんぶ出題(" + CARDS.length + "問)", onclick: function () { start(CARDS, "normal", "ぜんぶ"); } }),
+    el("p", { class: "note", text: "問題を読んで、頭の中や紙に答えを書いてから「答えを見る」を押します。合っていたかは自分で選びます。進み具合は、このスマホの中に保存されます。" })
+  ]);
+}
+
+function renderQuiz() {
+  var c = session.cards[session.i];
+  var tags = [el("span", { class: "chip", text: secOf(c.sec).id + ". " + secOf(c.sec).name })];
+  if (session.mode === "review") tags.push(el("span", { class: "chip warn", text: "復習" }));
+  var kids = [el("div", { class: "tag" }, tags), el("p", { class: "q", text: c.q })];
+  if (session.shown) kids.push(el("div", { class: "a-box" }, [el("span", { class: "a-lbl", text: "答え" }), c.a]));
+  if (session.shown && c.pending) kids.push(el("p", { class: "pending-note", text: "この答えは、プリントが空欄だった部分を教科書の知識で埋めています。先生のノートと見比べてください。" }));
+  var top = el("div", { class: "topbar" }, [
+    el("div", { class: "row" }, [
+      el("button", { type: "button", class: "back", text: "‹ もどる", onclick: function () { view = "home"; render(); } }),
+      el("div", { class: "counter", text: (session.i + 1) + " / " + session.cards.length })
+    ]),
+    el("div", { class: "bar" }, [el("i", { style: "width:" + Math.round(session.i / session.cards.length * 100) + "%" })])
+  ]);
+  var actions = session.shown
+    ? el("div", { class: "actions two" }, [
+        el("button", { type: "button", class: "act miss", text: "まちがえた", onclick: function () { answer(false); } }),
+        el("button", { type: "button", class: "act ok", text: "できた", onclick: function () { answer(true); } })
+      ])
+    : el("div", { class: "actions" }, [el("button", { type: "button", class: "act reveal", text: "答えを見る", onclick: reveal })]);
+  return el("div", { class: "quiz" }, [top, el("div", { class: "card" }, kids), actions]);
+}
+
+function renderResult() {
+  var rc = reviewCards();
+  var btns = [];
+  if (rc.length) btns.push(el("button", { type: "button", class: "btn2 primary", text: "復習フォルダを出題(" + rc.length + "問)", onclick: function () { start(rc, "review", "復習フォルダ"); } }));
+  btns.push(el("button", { type: "button", class: "btn2" + (rc.length ? "" : " primary"), text: "もう一度", onclick: function () { start(session.cards, session.mode, session.label); } }));
+  btns.push(el("button", { type: "button", class: "btn2", text: "ホームへ", onclick: function () { view = "home"; render(); } }));
+  return el("div", { class: "result" }, [
+    el("h2", { text: session.label + " おつかれさま" }),
+    el("div", { class: "score" }, [
+      el("div", { class: "ok" }, [el("b", { text: String(session.okN) }), "できた"]),
+      el("div", { class: "miss" }, [el("b", { text: String(session.missN) }), "まちがえた"])
+    ]),
+    el("div", { class: "btns" }, btns)
+  ]);
+}
+
+function render() {
+  var app = document.getElementById("app");
+  app.textContent = "";
+  app.appendChild(view === "home" ? renderHome() : view === "quiz" ? renderQuiz() : renderResult());
+}
+loadState();
+render();
+</script></body></html>
