@@ -29,5 +29,5 @@ node tests/test.js
 
 ## 一問一答(テスト前用)
 - `ichimon/kenpo/` 憲法編(214問)
-- `ichimon/keizai/` 経済編(公害・消費者・財政、110問)
+- `ichimon/keizai/` 公民・経済編(公害・消費者・財政、プリントの空欄から約190問)
 どちらも `index.html` を開くだけで使えます。

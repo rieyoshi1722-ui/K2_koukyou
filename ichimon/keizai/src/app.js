@@ -82,7 +82,7 @@ function renderHome() {
   ]);
   if (!rc.length) review.setAttribute("disabled", "");
   return el("div", { class: "home" }, [
-    el("div", { class: "title-row" }, [el("h1", { text: "公共 一問一答" }), el("div", { class: "sub", text: "経済編 ・ " + CARDS.length + "問" })]),
+    el("div", { class: "title-row" }, [el("h1", { text: "公民 一問一答" }), el("div", { class: "sub", text: "公害・消費者・財政 ・ " + CARDS.length + "問" })]),
     review,
     el("div", { class: "opt" }, [el("span", { text: "出す順番" }), el("div", { class: "seg", role: "group", "aria-label": "出す順番" }, optBtns)]),
     el("div", { class: "sec-list" }, secBtns),
