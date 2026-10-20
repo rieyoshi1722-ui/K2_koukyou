@@ -32,3 +32,4 @@ node tests/test.js
 - `ichimon/keizai/` 公民・経済編(公害・消費者・財政、プリントの空欄から約190問)
 どちらも `index.html` を開くだけで使えます。
 - `ichimon/kinyu/` 公民・金融編(貨幣・金融・金利・金融政策、160問)
+- `ichimon/kokyo/` 公共・憲法編(穴埋めを1か所ずつにした一問一答、354問)
