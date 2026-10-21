@@ -1,5 +1,5 @@
 var CARDS = RAW.map(function (r, i) {
-  return { id: r[0] + "-" + (i + 1), sec: r[0], q: r[1], a: r[2], pending: r[3] === 1 };
+  return { id: r[0] + "-" + (i + 1), sec: r[0], q: r[1], a: r[2], pending: r[3] === 1 || r[3] === true };
 });
 var LS_KEY = "kokyo-ichimon-kokyo-v1";
 var state = { review: [], ok: {}, order: "random" };
