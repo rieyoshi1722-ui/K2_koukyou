@@ -395,9 +395,10 @@ function renderHome() {
 
 function renderQuiz() {
   var c = session.cards[session.i];
-  var tags = [el("span", { class: "chip", text: secOf(c.sec).id + ". " + secOf(c.sec).name })];
+  var tags = [];
+  if (session.shown) tags.push(el("span", { class: "chip", text: secOf(c.sec).id + ". " + secOf(c.sec).name }));
   if (session.mode === "review") tags.push(el("span", { class: "chip warn", text: "復習" }));
-  var kids = [el("div", { class: "tag" }, tags), el("p", { class: "q", text: c.q })];
+  var kids = (tags.length ? [el("div", { class: "tag" }, tags)] : []).concat([el("p", { class: "q", text: c.q })]);
   if (session.shown) kids.push(el("div", { class: "a-box" }, [el("span", { class: "a-lbl", text: "答え" }), c.a]));
   if (session.shown && c.pending) kids.push(el("p", { class: "pending-note", text: "この答えは、プリントが空欄だった部分を教科書の知識で埋めています。先生のノートと見比べてください。" }));
   var top = el("div", { class: "topbar" }, [
