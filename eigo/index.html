@@ -55,6 +55,10 @@ details[open] summary::before{content:"▼ "}
 .stars{color:var(--ng);font-weight:700;font-size:13px}
 .ctrl{display:flex;gap:8px;margin:12px 0 0}
 button{font:inherit;font-weight:700;font-size:14px;border:1px solid var(--ink);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 14px;cursor:pointer}
+details.tr{margin:4px 0}
+details.tr summary{font-weight:400;color:inherit;font-size:inherit;padding:2px 0}
+details.tr summary::before{color:var(--ink)}
+details.tr .ja{display:block;padding-left:18px;color:var(--sub)}
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 </style>
 
@@ -79,7 +83,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
   <p>① ( )から正しいほうを選ぶ　② 下線に入れる　③ 語を並べかえる　④ まちがいを直す　⑤ 日本語に合う英文を作る</p>
   <p class="ja">ドリルの例文や問題の数字だけ変えて出ることが多いです。ドリルの答えも見直すのがおすすめ。</p>
 </div>
-<div class="ctrl"><button type="button" id="openAll">答えを全部ひらく</button><button type="button" id="closeAll">全部とじる</button></div>
+<div class="ctrl"><button type="button" id="openAll">答えと和訳を全部ひらく</button><button type="button" id="closeAll">全部とじる</button></div>
 
 <!-- ============ 分詞 ============ -->
 <h2 id="bunshi">① 分詞(Lesson 9-1・9-2)</h2>
@@ -100,12 +104,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 <h3>B・C・D 形のパターン <span class="stars">★★★</span></h3>
 <div class="scroll"><table>
 <tr><th>形</th><th>意味</th><th>例文</th></tr>
-<tr><td>SVC<br>(remain など)</td><td>〜のままだ</td><td class="en">The mall will remain closed.</td></tr>
-<tr><td>keep + O + 分詞</td><td>Oを〜のままにする</td><td class="en">She kept me waiting.<br>Keep the door locked.</td></tr>
-<tr><td>see/hear/feel + O + ing</td><td>Oが〜しているのを見る/聞く</td><td class="en">I saw Steve waiting for a bus.</td></tr>
-<tr><td>see/hear/feel + O + ed</td><td>Oが〜されるのを見る/聞く</td><td class="en">I saw the book advertised.</td></tr>
-<tr><td>have/get + O + ed</td><td>Oを〜してもらう / 〜される(被害)</td><td class="en">She had her hair cut.<br>She had her bag stolen.</td></tr>
-<tr><td>make + O + ed</td><td>Oを〜させる</td><td class="en">make yourself understood</td></tr>
+<tr><td>SVC<br>(remain など)</td><td>〜のままだ</td><td class="en"><details class="tr"><summary>The mall will remain closed.</summary><span class="ja">そのショッピングモールは閉まったままだろう。</span></details></td></tr>
+<tr><td>keep + O + 分詞</td><td>Oを〜のままにする</td><td class="en"><details class="tr"><summary>She kept me waiting.</summary><span class="ja">彼女は私を待たせた。</span></details><br><details class="tr"><summary>Keep the door locked.</summary><span class="ja">ドアに鍵をかけたままにしておいてください。</span></details></td></tr>
+<tr><td>see/hear/feel + O + ing</td><td>Oが〜しているのを見る/聞く</td><td class="en"><details class="tr"><summary>I saw Steve waiting for a bus.</summary><span class="ja">私はスティーブがバスを待っているのを見かけた。</span></details></td></tr>
+<tr><td>see/hear/feel + O + ed</td><td>Oが〜されるのを見る/聞く</td><td class="en"><details class="tr"><summary>I saw the book advertised.</summary><span class="ja">私はその本が広告されているのを見かけた。</span></details></td></tr>
+<tr><td>have/get + O + ed</td><td>Oを〜してもらう / 〜される(被害)</td><td class="en"><details class="tr"><summary>She had her hair cut.</summary><span class="ja">彼女は髪を切ってもらった。</span></details><br><details class="tr"><summary>She had her bag stolen.</summary><span class="ja">彼女はバッグを盗まれた。</span></details></td></tr>
+<tr><td>make + O + ed</td><td>Oを〜させる</td><td class="en"><details class="tr"><summary>make yourself understood</summary><span class="ja">自分自身を理解させる(=自分の言いたいことを伝える)</span></details></td></tr>
 </table></div>
 
 <h3>分詞構文 <span class="stars">★★★</span></h3>
@@ -113,15 +117,15 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
   <p><b>作り方</b>:①接続詞をとる ②主語をとる(主節と同じとき) ③動詞を ing にする</p>
   <div class="scroll"><table>
   <tr><th>意味</th><th>例文</th></tr>
-  <tr><td>〜しながら</td><td class="en">We sat up all night, talking on the phone.</td></tr>
-  <tr><td>〜のとき</td><td class="en">Playing soccer, he hurt his leg.</td></tr>
-  <tr><td>〜して、それから</td><td class="en">The train leaves Nagoya at eight, arriving in Tokyo at ten.</td></tr>
-  <tr><td>〜なので</td><td class="en">Written in plain English, this book is easy to read.</td></tr>
+  <tr><td>〜しながら</td><td class="en"><details class="tr"><summary>We sat up all night, talking on the phone.</summary><span class="ja">電話で話しながら、私たちは夜を明かした。</span></details></td></tr>
+  <tr><td>〜のとき</td><td class="en"><details class="tr"><summary>Playing soccer, he hurt his leg.</summary><span class="ja">サッカーをしているときに、彼は脚をけがした。</span></details></td></tr>
+  <tr><td>〜して、それから</td><td class="en"><details class="tr"><summary>The train leaves Nagoya at eight, arriving in Tokyo at ten.</summary><span class="ja">その列車は8時に名古屋を出発し、10時に東京に着く。</span></details></td></tr>
+  <tr><td>〜なので</td><td class="en"><details class="tr"><summary>Written in plain English, this book is easy to read.</summary><span class="ja">わかりやすい英語で書かれているので、この本は読みやすい。</span></details></td></tr>
   </table></div>
   <ul class="pt">
-    <li><mark>否定</mark>は分詞の前に not / never:<span class="en">Not knowing what to do, ...</span></li>
+    <li><mark>否定</mark>は分詞の前に not / never:<span class="en"><details class="tr"><summary>Not knowing what to do, ...</summary><span class="ja">何をしてよいかわからないまま、…</span></details></span></li>
     <li><mark>受け身</mark>は Being + 過去分詞。<b>Being は消せる</b>:(Being) Written in ... / (Being) Seen from a distance, ...</li>
-    <li><mark>完了形 Having + 過去分詞</mark>=主節より<b>前</b>のこと:<span class="en">Having finished my homework, I went to bed.</span></li>
+    <li><mark>完了形 Having + 過去分詞</mark>=主節より<b>前</b>のこと:<span class="en"><details class="tr"><summary>Having finished my homework, I went to bed.</summary><span class="ja">宿題を終えてから、私は寝た。</span></details></span></li>
   </ul>
 </div>
 
@@ -135,8 +139,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 
 <h3>with + 名詞 + 分詞(付帯状況) <span class="stars">★★</span></h3>
 <div class="card">
-  <p class="en">He waited with the engine running. <span class="ja">エンジンをかけたまま</span><br>
-  The woman was sitting with her legs crossed. <span class="ja">脚を組んで</span></p>
+  <p class="en"><details class="tr"><summary>He waited with the engine running.</summary><span class="ja">エンジンをかけたまま、彼は待った。</span></details><br>
+  <details class="tr"><summary>The woman was sitting with her legs crossed.</summary><span class="ja">その女性は脚を組んで座っていた。</span></details></p>
   <p>名詞が<b>自分でする→ing</b>、<b>される→ed</b>。脚は「組まれる」ので crossed。</p>
 </div>
 
@@ -165,18 +169,18 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 <div class="card">
   <p><mark>見分けのコツ</mark>:関係詞の<b>後ろを見る</b>。</p>
   <ul class="pt">
-    <li>すぐ動詞が来る → 主格(who / which)<br><span class="en">The boy who is standing there ...</span></li>
-    <li>主語+動詞が来る(名詞が1つ足りない) → 目的格(whom / which)<br><span class="en">the book which he wrote</span></li>
-    <li>後ろが「名詞」で始まる(her sister などの代わり) → whose<br><span class="en">a woman whose sister is a cartoonist</span></li>
+    <li>すぐ動詞が来る → 主格(who / which)<br><span class="en"><details class="tr"><summary>The boy who is standing there ...</summary><span class="ja">あそこに立っている少年は…</span></details></span></li>
+    <li>主語+動詞が来る(名詞が1つ足りない) → 目的格(whom / which)<br><span class="en"><details class="tr"><summary>the book which he wrote</summary><span class="ja">彼が書いた本</span></details></span></li>
+    <li>後ろが「名詞」で始まる(her sister などの代わり) → whose<br><span class="en"><details class="tr"><summary>a woman whose sister is a cartoonist</summary><span class="ja">姉[妹]が漫画家である女性</span></details></span></li>
   </ul>
   <p><mark>that を使いたい形</mark>:先行詞に <b>the only / the first / 最上級 / all / every / no</b> がつくとき。<br>
-  <span class="en">The only thing that worries me is ...</span></p>
+  <span class="en"><details class="tr"><summary>The only thing that worries me is ...</summary><span class="ja">私を心配させる唯一のことは…</span></details></span></p>
 </div>
 
 <h3>前置詞 + 関係代名詞 <span class="stars">★★★</span></h3>
 <div class="card">
-  <p class="en">This is the CD (which) I told you <b>about</b>. <span class="ja">前置詞が後ろ → which は省略OK</span><br>
-  This is the CD <b>about which</b> I told you. <span class="ja">前置詞が前 → which は省略できない</span></p>
+  <p class="en"><details class="tr"><summary>This is the CD (which) I told you <b>about</b>.</summary><span class="ja">これが私が君に話したCDです。</span></details><span class="ja">前置詞が後ろ → which は省略OK</span><br>
+  <details class="tr"><summary>This is the CD <b>about which</b> I told you.</summary><span class="ja">これが私が君に話したCDです。</span></details><span class="ja">前置詞が前 → which は省略できない</span></p>
   <ul class="pt">
     <li>前置詞が前にあるとき、<mark>that は使えない</mark>(whom / which だけ)</li>
     <li>look for など「くっついた動詞」の前置詞は<b>後ろ</b>:(which) I've been looking for</li>
@@ -185,45 +189,45 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 
 <h3>what =「〜すること・もの」 <span class="stars">★★★</span></h3>
 <div class="card">
-  <p class="en">What is needed is change. <span class="ja">(主語)</span><br>
-  I didn't hear what she said. <span class="ja">(目的語)</span><br>
-  That's what I want to know. <span class="ja">(補語)</span></p>
+  <p class="en"><details class="tr"><summary>What is needed is change.</summary><span class="ja">必要とされるのは変化だ。</span></details><span class="ja">(主語)</span><br>
+  <details class="tr"><summary>I didn't hear what she said.</summary><span class="ja">彼女の言ったことが聞こえなかった。</span></details><span class="ja">(目的語)</span><br>
+  <details class="tr"><summary>That's what I want to know.</summary><span class="ja">それが私の知りたいことだ。</span></details><span class="ja">(補語)</span></p>
   <p><mark>what の前には先行詞がない</mark>(what 自身が「こと・もの」を含むから)。前に名詞があれば which / who / that。</p>
 </div>
 
 <h3>コンマあり・なし(限定と非限定) <span class="stars">★★★</span></h3>
 <div class="scroll"><table>
 <tr><th>形</th><th>意味</th></tr>
-<tr><td class="en">She has two sons who became actors.</td><td>俳優になった息子が2人いる(他にも息子がいるかも)</td></tr>
-<tr><td class="en">She has two sons, who became actors.</td><td>息子は2人で、その2人は俳優になった</td></tr>
+<tr><td class="en"><details class="tr"><summary>She has two sons who became actors.</summary><span class="ja">彼女には俳優になった息子が2人いる。</span></details></td><td>俳優になった息子が2人いる(他にも息子がいるかも)</td></tr>
+<tr><td class="en"><details class="tr"><summary>She has two sons, who became actors.</summary><span class="ja">彼女には息子が2人いて、(その2人は)俳優になった。</span></details></td><td>息子は2人で、その2人は俳優になった</td></tr>
 </table></div>
 <ul class="pt">
   <li><mark>コンマの後ろ(非限定)に that は使えない</mark></li>
-  <li>先行詞が<b>固有名詞</b>・<b>my / this + 名詞</b>のときは、コンマありのみ:<span class="en">Sailors Restaurant, which served ...</span></li>
-  <li><mark>, which が前の文全体を受ける</mark>:<span class="en">He said he was a lawyer, which wasn't true.</span>(それは〜だった)</li>
+  <li>先行詞が<b>固有名詞</b>・<b>my / this + 名詞</b>のときは、コンマありのみ:<span class="en"><details class="tr"><summary>Sailors Restaurant, which served ...</summary><span class="ja">セイラーズ・レストラン、そこは(おいしい料理を)出した</span></details></span></li>
+  <li><mark>, which が前の文全体を受ける</mark>:<span class="en"><details class="tr"><summary>He said he was a lawyer, which wasn't true.</summary><span class="ja">彼は弁護士だと言ったが、それは本当ではなかった。</span></details></span>(それは〜だった)</li>
 </ul>
 
 <h3>関係副詞 <span class="stars">★★★</span></h3>
 <div class="scroll"><table>
 <tr><th>先行詞</th><th>関係副詞</th><th>例文</th></tr>
-<tr><td>場所(the hotel)</td><td><b>where</b></td><td class="en">The hotel where we stayed was wonderful.</td></tr>
-<tr><td>時(the day)</td><td><b>when</b></td><td class="en">I remember the day when I first met you.</td></tr>
-<tr><td>理由(the reason)</td><td><b>why</b></td><td class="en">Tell me (the reason) why you were late.<br><span class="ja">the reason か why のどちらかは省略できる</span></td></tr>
-<tr><td>方法</td><td><b>how</b></td><td class="en">That's how the accident happened.<br><span class="ja">the way how はダメ。the way か how のどちらか1つ</span></td></tr>
+<tr><td>場所(the hotel)</td><td><b>where</b></td><td class="en"><details class="tr"><summary>The hotel where we stayed was wonderful.</summary><span class="ja">私たちが泊まったホテルはすばらしかった。</span></details></td></tr>
+<tr><td>時(the day)</td><td><b>when</b></td><td class="en"><details class="tr"><summary>I remember the day when I first met you.</summary><span class="ja">私は初めてあなたに出会った日を覚えている。</span></details></td></tr>
+<tr><td>理由(the reason)</td><td><b>why</b></td><td class="en"><details class="tr"><summary>Tell me (the reason) why you were late.</summary><span class="ja">あなたが遅れた理由を言いなさい。</span></details><br><span class="ja">the reason か why のどちらかは省略できる</span></td></tr>
+<tr><td>方法</td><td><b>how</b></td><td class="en"><details class="tr"><summary>That's how the accident happened.</summary><span class="ja">そのようにして事故は起こった。</span></details><br><span class="ja">the way how はダメ。the way か how のどちらか1つ</span></td></tr>
 </table></div>
 <div class="warn"><b>which と where のちがい</b><br>
 後ろが<b>完全な文</b>(名詞が足りている) → where / when / why<br>
 後ろが<b>名詞が1つ足りない</b> → which / who<br>
-<span class="en">the town where I was born</span>(I was born は完全) / <span class="en">the town which I visited</span>(visited の目的語が足りない)</div>
-<p>非限定用法:<span class="en">We stayed in Paris, where we met Tom. / In 2008, when I lived in Tokyo, I met Maria.</span></p>
+<span class="en"><details class="tr"><summary>the town where I was born</summary><span class="ja">私が生まれた町</span></details></span>(I was born は完全) / <span class="en"><details class="tr"><summary>the town which I visited</summary><span class="ja">私が訪れた町</span></details></span>(visited の目的語が足りない)</div>
+<p>非限定用法:<span class="en"><details class="tr"><summary>We stayed in Paris, where we met Tom.</summary><span class="ja">私たちはパリに滞在し、そこでトムに出会った。</span></details><details class="tr"><summary>In 2008, when I lived in Tokyo, I met Maria.</summary><span class="ja">2008年に私は東京に住んでいたのだが、その時マリアに出会った。</span></details></span></p>
 
 <h3>複合関係詞(〜ever) <span class="stars">★★★</span></h3>
 <div class="scroll"><table>
 <tr><th>語</th><th>意味(2通り)</th><th>例文</th></tr>
-<tr><td><b>whatever</b></td><td>〜するものは何でも / 何が〜しようとも<br>(= anything that / no matter what)</td><td class="en">I'll give you whatever you want.<br>He is always calm, whatever happens.</td></tr>
-<tr><td><b>whenever</b></td><td>〜するときはいつでも</td><td class="en">I see Lisa whenever I go to Tokyo.</td></tr>
-<tr><td><b>wherever</b></td><td>〜するところはどこでも / どこへ〜しようとも</td><td class="en">Wherever he goes, he always has two bodyguards.</td></tr>
-<tr><td><b>however + 形容詞</b></td><td>どんなに〜でも (= no matter how)</td><td class="en">However difficult the situation is, ...</td></tr>
+<tr><td><b>whatever</b></td><td>〜するものは何でも / 何が〜しようとも<br>(= anything that / no matter what)</td><td class="en"><details class="tr"><summary>I'll give you whatever you want.</summary><span class="ja">あなたが欲しいものは何でもあげますよ。</span></details><br><details class="tr"><summary>He is always calm, whatever happens.</summary><span class="ja">何が起ころうとも、彼はいつも冷静だ。</span></details></td></tr>
+<tr><td><b>whenever</b></td><td>〜するときはいつでも</td><td class="en"><details class="tr"><summary>I see Lisa whenever I go to Tokyo.</summary><span class="ja">東京に行く時はいつでも私はリサと会う。</span></details></td></tr>
+<tr><td><b>wherever</b></td><td>〜するところはどこでも / どこへ〜しようとも</td><td class="en"><details class="tr"><summary>Wherever he goes, he always has two bodyguards.</summary><span class="ja">どこへ行こうとも、いつも彼はボディーガードを2人連れている。</span></details></td></tr>
+<tr><td><b>however + 形容詞</b></td><td>どんなに〜でも (= no matter how)</td><td class="en"><details class="tr"><summary>However difficult the situation is, ...</summary><span class="ja">どんなに状況が困難でも、…</span></details></td></tr>
 </table></div>
 
 <h3>練習問題(関係詞)</h3>
@@ -248,8 +252,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 <h3>文に関係詞節を足す問題のコツ</h3>
 <div class="card">
   <p><mark>関係詞節は、先行詞(説明したい名詞)のすぐ後ろ</mark>に置きます。</p>
-  <p class="en">The bag <b>which she was carrying under her arm</b> was snatched on her way home.<br>
-  The doctor <b>whom I saw yesterday</b> was excellent and friendly.</p>
+  <p class="en"><details class="tr"><summary>The bag <b>which she was carrying under her arm</b> was snatched on her way home.</summary><span class="ja">彼女が脇にかかえていたバッグは、帰り道でひったくられた。</span></details>
+  <details class="tr"><summary>The doctor <b>whom I saw yesterday</b> was excellent and friendly.</summary><span class="ja">私が昨日会った医者は、すばらしくて親切だった。</span></details></p>
   <p class="ja">※ドリル10-1 の3-3、3-4 のような問題は、この形が基本です。</p>
 </div>
 
@@ -258,14 +262,14 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 <h3>これだけ覚える <span class="stars">★★</span></h3>
 <div class="scroll"><table>
 <tr><th></th><th>意味</th><th>例</th></tr>
-<tr><td><b>句</b></td><td>S+V を<b>含まない</b>語のまとまり</td><td class="en">Tom knows <b>what to do</b>.</td></tr>
-<tr><td><b>節</b></td><td>S+V を<b>含む</b>語のまとまり</td><td class="en">Tom knows <b>what he should do</b>.</td></tr>
+<tr><td><b>句</b></td><td>S+V を<b>含まない</b>語のまとまり</td><td class="en"><details class="tr"><summary>Tom knows <b>what to do</b>.</summary><span class="ja">トムは何をすべきかわかっている。</span></details></td></tr>
+<tr><td><b>節</b></td><td>S+V を<b>含む</b>語のまとまり</td><td class="en"><details class="tr"><summary>Tom knows <b>what he should do</b>.</summary><span class="ja">トムは何をすべきかわかっている。</span></details></td></tr>
 </table></div>
 <div class="scroll" style="margin-top:10px"><table>
 <tr><th>はたらき</th><th>句の例</th><th>節の例</th></tr>
-<tr><td><b>名詞</b>(S・O・C になる)</td><td class="en">how to play the guitar</td><td class="en">that Jim is honest</td></tr>
-<tr><td><b>形容詞</b>(名詞を後ろから説明)</td><td class="en">a story written in English</td><td class="en">a story which Meg wrote</td></tr>
-<tr><td><b>副詞</b>(動詞・文全体を説明)</td><td class="en">in the cafeteria</td><td class="en">after she cleaned her room</td></tr>
+<tr><td><b>名詞</b>(S・O・C になる)</td><td class="en"><details class="tr"><summary>how to play the guitar</summary><span class="ja">ギターの弾き方</span></details></td><td class="en"><details class="tr"><summary>that Jim is honest</summary><span class="ja">ジムが正直だということ</span></details></td></tr>
+<tr><td><b>形容詞</b>(名詞を後ろから説明)</td><td class="en"><details class="tr"><summary>a story written in English</summary><span class="ja">英語で書かれた物語</span></details></td><td class="en"><details class="tr"><summary>a story which Meg wrote</summary><span class="ja">メグが書いた物語</span></details></td></tr>
+<tr><td><b>副詞</b>(動詞・文全体を説明)</td><td class="en"><details class="tr"><summary>in the cafeteria</summary><span class="ja">食堂で</span></details></td><td class="en"><details class="tr"><summary>after she cleaned her room</summary><span class="ja">彼女が部屋を掃除した後で</span></details></td></tr>
 </table></div>
 <ul class="pt">
   <li><mark>主節</mark>=文の中心の S+V。<mark>従属節</mark>=主節がないと存在できない節(名詞節・形容詞節・副詞節)</li>
