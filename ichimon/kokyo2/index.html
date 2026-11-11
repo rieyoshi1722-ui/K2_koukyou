@@ -1,0 +1,363 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
+<title>公共 一問一答(国際経済)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: 1枚のカードに「問い」→タップで「答え」。ボタンはカードの真下に置いて、指が届く範囲に収める。 */
+:root {
+  --paper: #f3f5f9; --sheet: #ffffff; --grid: #e0e6f1; --ink: #1c2540; --ink-soft: #5a6684;
+  --accent: #b8322a; --accent-ink: #ffffff; --marker: #ffe3b8; --marker-ink: #6b3a00;
+  --ok: #1f8a5b; --ok-bg: #dff3e8; --miss: #c8452f; --miss-bg: #fde4de; --line: #cbd4e6;
+  --font-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1626; --sheet: #172036; --grid: #223052; --ink: #e8ecf6; --ink-soft: #9aa6c4;
+    --accent: #ff8f80; --accent-ink: #0f1626; --marker: #5c3d12; --marker-ink: #ffe6bd;
+    --ok: #6fd3a2; --ok-bg: #173a2c; --miss: #ff9a86; --miss-bg: #432019; --line: #2f3d63; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1626; --sheet: #172036; --grid: #223052; --ink: #e8ecf6; --ink-soft: #9aa6c4;
+  --accent: #ff8f80; --accent-ink: #0f1626; --marker: #5c3d12; --marker-ink: #ffe6bd;
+  --ok: #6fd3a2; --ok-bg: #173a2c; --miss: #ff9a86; --miss-bg: #432019; --line: #2f3d63; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.8; padding-inline: 16px; padding-block: 0; touch-action: manipulation; }
+#app { max-width: 560px; margin: 0 auto; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; touch-action: manipulation; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+.bar { height: 6px; border-radius: 3px; background: var(--grid); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--ok); }
+
+.home { display: flex; flex-direction: column; gap: 18px; padding-block: 22px 40px; }
+.title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.title-row h1 { font-size: 28px; font-weight: 900; }
+.sub { color: var(--ink-soft); font-size: 13px; }
+.review-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 16px 18px; border-radius: 14px; background: var(--miss-bg); border: 2px solid var(--miss); }
+.review-card[disabled] { opacity: .55; cursor: default; }
+.review-card .big { font-family: var(--font-display); font-weight: 900; font-size: 19px; }
+.review-card .count { font-family: var(--font-display); font-weight: 900; font-size: 32px; font-variant-numeric: tabular-nums; color: var(--miss); }
+.review-card small { display: block; color: var(--ink-soft); font-size: 12.5px; line-height: 1.5; }
+.opt { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-soft); }
+.seg { display: inline-flex; border: 2px solid var(--accent); border-radius: 999px; overflow: hidden; }
+.seg button { padding: 4px 16px; font-weight: 700; font-size: 14px; color: var(--accent); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.sec-list { display: grid; gap: 10px; }
+.sec-btn { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; text-align: left; padding: 14px 16px; border-radius: 12px; background: var(--sheet); border: 1.5px solid var(--line); }
+.sec-btn .nm { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+.sec-btn .pg { font-size: 12px; color: var(--ink-soft); }
+.sec-btn .st { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-soft); text-align: right; }
+.sec-btn .bar { grid-column: 1 / -1; }
+.all-btn { padding: 15px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-weight: 900; font-size: 18px; }
+.note { font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+.quiz { padding-block: 0 56px; }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--paper); padding-block: 12px 8px; display: grid; gap: 8px; }
+.topbar .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.back { padding: 6px 10px; margin-left: -10px; font-weight: 700; color: var(--accent); }
+.counter { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ink-soft); }
+.card { background-color: var(--sheet); border: 1.5px solid var(--line); border-radius: 14px; padding: 18px 16px 20px; margin-top: 8px; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 24px 24px; background-position: -1px -1px; }
+.tag { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+.chip.sub2 { background: var(--grid); color: var(--ink-soft); }
+.chip.warn { background: var(--marker); color: var(--marker-ink); }
+.q { font-family: var(--font-display); font-weight: 700; font-size: 21px; line-height: 1.7; margin: 0; overflow-wrap: anywhere; }
+.a-box { margin-top: 16px; padding: 14px 14px; border-radius: 10px; background: var(--marker); color: var(--marker-ink); font-family: var(--font-display); font-weight: 900; font-size: 22px; line-height: 1.6; overflow-wrap: anywhere; }
+.a-lbl { display: block; font-size: 12px; font-weight: 700; letter-spacing: .1em; opacity: .8; }
+.pending-note { margin: 12px 0 0; font-size: 12.5px; padding: 8px 10px; border-radius: 8px; background: var(--marker); color: var(--marker-ink); line-height: 1.5; }
+.actions { display: grid; gap: 10px; margin-top: 16px; }
+.actions.two { grid-template-columns: 1fr 1fr; }
+.act { min-height: 66px; padding: 15px 10px; border-radius: 14px; font-family: var(--font-display); font-weight: 900; font-size: 19px; }
+.act.reveal { background: var(--accent); color: var(--accent-ink); }
+.act.ok { background: var(--ok-bg); color: var(--ok); border: 2px solid var(--ok); }
+.act.miss { background: var(--miss-bg); color: var(--miss); border: 2px solid var(--miss); }
+.act:active { transform: translateY(1px); }
+
+.result { display: flex; flex-direction: column; gap: 18px; padding-block: 40px; }
+.result h2 { font-size: 26px; font-weight: 900; }
+.score { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.score div { padding: 14px; border-radius: 12px; text-align: center; font-family: var(--font-display); font-weight: 700; }
+.score .ok { background: var(--ok-bg); color: var(--ok); }
+.score .miss { background: var(--miss-bg); color: var(--miss); }
+.score b { display: block; font-size: 38px; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.btns { display: grid; gap: 10px; }
+.btn2 { padding: 14px; border-radius: 12px; font-family: var(--font-display); font-weight: 700; font-size: 16px; border: 2px solid var(--accent); color: var(--accent); }
+.btn2.primary { background: var(--accent); color: var(--accent-ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head><body><div id="app"></div><script>
+var SECTIONS = [{"id":"1","name":"自由貿易と比較優位","page":"p.25-26"},{"id":"2","name":"保護貿易","page":"p.26"},{"id":"3","name":"国際分業の種類","page":"p.27"},{"id":"4","name":"日本と世界の貿易動向","page":"p.28"},{"id":"5","name":"外国為替のしくみ","page":"p.29"},{"id":"6","name":"為替相場と円高・円安","page":"p.30"}];
+var RAW = [
+["1","【自由貿易】政府が介入せず、民間が自由に行う貿易を（　　　）という。","自由貿易",0,1,"p.25"],
+["1","【自由貿易】自由貿易を唱えたイギリスの経済学者は（　　　）。","リカード",0,1,"p.25"],
+["1","【自由貿易】リカードは（　　　）(国名)の経済学者。","イギリス(英)",0,1,"p.25"],
+["1","【リカード】主著『（　　　）』","経済学及び課税の原理",0,1,"p.25"],
+["1","【リカード】リカードが唱えた説は（　　　）。","比較生産費説",0,1,"p.25"],
+["1","【比較生産費説】各国が相対的に安く生産できる財の生産に（　　　）する。","特化",0,1,"p.25"],
+["1","【比較生産費説】各国が相対的に安く生産できる財に特化し、それぞれの財を（　　　）することにより、全体の生産性が高まる。","輸出入",0,0,"p.25"],
+["1","【比較生産費説】それぞれの財を輸出入することにより、全体の（　　　）が高まる。","生産性",0,0,"p.25"],
+["1","（　　　）…他国と比較して生産コストが低い状態。","絶対優位",0,1,"p.25"],
+["1","（　　　）…自国内で比較して生産コストが低い状態。","比較優位",0,1,"p.25"],
+["1","絶対優位とは、何と比較して生産コストが低い状態?","他国と比較して",0,0,"p.25"],
+["1","比較優位とは、何と比較して生産コストが低い状態?","自国内で比較して",0,0,"p.25"],
+["1","【絶対優位の表】生産コストは、イギリス:ぶどう酒120・毛織物100 / ポルトガル:ぶどう酒80・毛織物150。ぶどう酒の生産コストが他国より低いのは（　　　）。","ポルトガル(80 < 120)",0,0,"p.25"],
+["1","【絶対優位の表】イギリス:ぶどう酒120・毛織物100 / ポルトガル:ぶどう酒80・毛織物150。毛織物の生産コストが他国より低いのは（　　　）。","イギリス(100 < 150)",0,0,"p.25"],
+["1","【絶対優位の表】イギリスは、ぶどう酒と毛織物のどちらに特化する?","毛織物",0,1,"p.25"],
+["1","【絶対優位の表】ポルトガルは、ぶどう酒と毛織物のどちらに特化する?","ぶどう酒",0,1,"p.25"],
+["1","【絶対優位の表】特化して輸出入することで、何が得られる?","利益",0,0,"p.25"],
+["1","【比較優位の表】イギリス:ぶどう酒200・毛織物100 / ポルトガル:ぶどう酒30・毛織物90。ぶどう酒のコストを1としたとき、イギリスの毛織物のコストは（　　　）。","0.5(100 ÷ 200)",0,1,"p.25"],
+["1","【比較優位の表】イギリス:ぶどう酒200・毛織物100 / ポルトガル:ぶどう酒30・毛織物90。ぶどう酒のコストを1としたとき、ポルトガルの毛織物のコストは（　　　）。","3(90 ÷ 30)",0,1,"p.25"],
+["1","【比較優位の表】イギリスは、ぶどう酒と毛織物のどちらに特化する?","毛織物(0.5のほうが3より小さい)",0,1,"p.25"],
+["1","【比較優位の表】ポルトガルは、ぶどう酒と毛織物のどちらに特化する?","ぶどう酒",0,1,"p.25"],
+["1","【比較優位の表】ポルトガルは毛織物も90でイギリスより安い(絶対優位)。それでもポルトガルがぶどう酒に特化するのはなぜ?","自国内で比べると、ぶどう酒のほうが相対的にコストが低い(比較優位)から",0,0,"p.25"],
+["1","【特化前】イギリス:ぶどう酒200=1単位・毛織物100=1単位 / ポルトガル:ぶどう酒30=1単位・毛織物90=1単位。ぶどう酒の生産単位数(合計)は（　　　）。","2単位",0,0,"p.26"],
+["1","【特化前】毛織物の生産単位数(合計)は（　　　）。","2単位",0,0,"p.26"],
+["1","【特化後】イギリスが生産する毛織物は（　　　）単位。","3単位(300)",0,1,"p.26"],
+["1","【特化後】イギリスのぶどう酒の生産は（　　　）単位。","0単位",0,1,"p.26"],
+["1","【特化後】ポルトガルが生産するぶどう酒は（　　　）単位。","4単位(120)",0,1,"p.26"],
+["1","【特化後】ポルトガルの毛織物の生産は（　　　）単位。","0単位",0,1,"p.26"],
+["1","【特化後】ぶどう酒の生産単位数(合計)は（　　　）。","4単位",0,1,"p.26"],
+["1","【特化後】毛織物の生産単位数(合計)は（　　　）。","3単位",0,1,"p.26"],
+["1","特化前に比べ、ぶどう酒は（　　　）単位、生産が増加する。","2単位",0,1,"p.26"],
+["1","特化前に比べ、毛織物は（　　　）単位、生産が増加する。","1単位",0,1,"p.26"],
+["1","特化によって生産が増え、国全体が得られる利益を何という?","貿易の利益",0,0,"p.26"],
+["1","国際分業には、（自由／保護）貿易が必要。","自由",0,1,"p.26"],
+["1","自由貿易は、先進国に有利?不利?","有利",0,1,"p.26"],
+["1","自由貿易は、発展途上国に有利?不利?","不利",0,1,"p.26"],
+["1","国際分業は、発展途上国に（　　　）をもたらす要因になる。","モノカルチャー経済",0,1,"p.26"],
+["1","モノカルチャー経済とは?","特定の製品の原材料のみを生産する経済",0,1,"p.26"],
+["1","モノカルチャー経済になると、経済はどうなる?","不安定になる",0,1,"p.26"],
+["2","（　　　）…政府が介入して、自国の産業を保護する貿易。","保護貿易",0,1,"p.26"],
+["2","保護貿易を唱えたドイツの経済学者は（　　　）。","リスト",0,1,"p.26"],
+["2","リストは（　　　）(国名)の経済学者。","ドイツ(独)",0,1,"p.26"],
+["2","【リスト】主著『（　　　）』","政治経済学の国民的体系",0,1,"p.26"],
+["2","自由貿易を唱えたリカードに対し、保護貿易を唱えたのは（　　　）。","リスト",0,1,"p.26"],
+["2","保護貿易では、（　　　）などにより自国の産業を保護・育成する。","関税",0,1,"p.26"],
+["2","保護貿易では、関税などにより自国の（　　　）を保護・育成する。","幼稚産業",0,1,"p.26"],
+["2","関税とは?","貿易のときにかかる税(主に輸入税)",0,0,"p.26"],
+["2","保護貿易は、先進国に有利?不利?","不利",0,1,"p.26"],
+["2","保護貿易は、発展途上国に有利?不利?","有利",0,1,"p.26"],
+["3","（　　　）…各国が比較優位な財の生産に特化し、他のものは輸入するという、国家間の分業関係。","国際分業",0,1,"p.27"],
+["3","国際分業は、各国が（　　　）な財の生産に特化し、他のものは輸入する関係。","比較優位",0,0,"p.27"],
+["3","①（　　　）…経済水準が同じ国同士の貿易。","水平的分業",0,1,"p.27"],
+["3","水平的分業は、経済水準が（同じ／異なる）国同士の貿易。","同じ",0,1,"p.27"],
+["3","水平的分業は、主にどんな国の間でみられる?","先進国間",0,0,"p.27"],
+["3","水平的分業は、何と何の分業関係?","製品と製品",0,1,"p.27"],
+["3","②（　　　）…経済水準が異なる国同士の貿易。","垂直的分業",0,1,"p.27"],
+["3","垂直的分業は、経済水準が（同じ／異なる）国同士の貿易。","異なる",0,1,"p.27"],
+["3","垂直的分業は、主にどんな国の間でみられる?","先進国と発展途上国との間",0,0,"p.27"],
+["3","垂直的分業は、何と何の分業関係?","製品と原材料",0,1,"p.27"],
+["3","水平的分業・垂直的分業のどちらも、先進国に有利?不利?","有利",0,1,"p.27"],
+["3","水平的分業・垂直的分業のどちらも、発展途上国に有利?不利?","不利",0,1,"p.27"],
+["3","【手書きの図】PC本体とソフトウェアをやりとりする水平的分業が見られるのは、どこ?","北半球の先進国",0,1,"p.27"],
+["3","【手書きの図】PC本体と原油・ボーキサイトをやりとりする垂直的分業が見られるのは、どこ?","南半球の発展途上国",0,1,"p.27"],
+["3","【手書きの図】垂直的分業で、発展途上国から先進国へ送られるものは?","原油・ボーキサイト(原材料)",0,1,"p.27"],
+["3","北半球の先進国と、南半球の発展途上国との経済格差から生じる問題は?","南北問題",0,1,"p.27"],
+["4","①（　　　）…製品や部品の生産工程を、各国間で分担する。","グローバル・サプライチェーン",0,1,"p.28"],
+["4","グローバル・サプライチェーンは、別名何という分業?","工程間分業",0,1,"p.28"],
+["4","グローバル・サプライチェーンでは、製品や部品の（　　　）を各国間で分担する。","生産工程",0,0,"p.28"],
+["4","自由貿易の更なる進展 ⇔ 国内産業の（　　　）。","低迷",0,0,"p.28"],
+["4","国内産業の低迷は先進国でも増え、（自由／保護）貿易主義も根強い。","保護",0,1,"p.28"],
+["4","【日本の貿易相手国(2024年)】輸出額が最も多い相手国は?","アメリカ(20.0%)",0,0,"p.28"],
+["4","【日本の貿易相手国(2024年)】輸出額が2番目に多い相手国は?","中国(17.6%)",0,0,"p.28"],
+["4","【日本の貿易相手国(2024年)】輸入額が最も多い相手国は?","中国(22.5%)",0,0,"p.28"],
+["4","【日本の貿易相手国(2024年)】輸入額が2番目に多い相手国は?","アメリカ(11.4%)",0,0,"p.28"],
+["4","【貿易相手国の推移】1970年、日本の貿易相手で最も割合が大きかった地域は?","北アメリカ(34.0%)",0,0,"p.28"],
+["4","【貿易相手国の推移】アジアの割合は、1970年の30.3%から2020年には（　　　）%になった。","59.9",0,0,"p.28"],
+["4","【対米貿易】1980年代から、日本は貿易で黒字?赤字?","黒字",0,1,"p.28"],
+["4","【対米貿易】日本の黒字が続いて起こった、日米間の問題は?","日米貿易摩擦",0,1,"p.28"],
+["4","【対中貿易】貿易額は、年々増えた?減った?","増えた",0,1,"p.28"],
+["4","【対中貿易】貿易額が増えた背景は?","日本企業の中国進出の拡大",0,1,"p.28"],
+["4","【対中貿易】日本企業の進出が進んだ、中国の都市の例は?","上海",0,1,"p.28"],
+["4","【対中貿易】近年、減少傾向になった理由は?","コロナによる閉鎖政策",0,1,"p.28"],
+["5","（　　　）…国際間の取引を、手形を用いて決済するしくみ。","外国為替",0,1,"p.29"],
+["5","外国為替は、国際間の取引を（　　　）を用いて決済するしくみ。","手形",0,0,"p.29"],
+["5","（　　　）…お金を受け取る側が手形を振り出して、銀行に代金の取り立てを依頼する方法。","逆為替",0,0,"p.29"],
+["5","（　　　）…お金を支払う側が手形を振り出して、銀行に依頼して資金を送る方法。","並為替",0,0,"p.29"],
+["5","逆為替と並為替のうち、外国為替取引で一般的に用いられるのは?","逆為替",0,0,"p.29"],
+["5","【為替取引の流れ】日本の輸出業者Aが、アメリカの輸入業者Bに2万ドルの自動車を売る。①Bは、どこの銀行に信用状の発行を依頼する?","Y銀行(アメリカの銀行)",0,1,"p.29"],
+["5","【為替取引の流れ】①Y銀行は、Aに何を発行する?","信用状(L/C)",0,1,"p.29"],
+["5","【為替取引の流れ】②Aは貨物を何に積み込み、輸送する?","船(船会社を通じて輸送)",0,1,"p.29"],
+["5","【為替取引の流れ】③輸送が終わると、Aが発行する書類は?","為替手形",0,1,"p.29"],
+["5","【為替取引の流れ】③Aは為替手形と、何を銀行に提出する?","船積書類",0,1,"p.29"],
+["5","【為替取引の流れ】③Aが為替手形と船積書類を提出する銀行は?","X銀行(日本の銀行)",0,1,"p.29"],
+["5","【為替取引の流れ】③Aが受け取る代金は、1ドル=100円で何円?(2万ドル分)","200万円",0,1,"p.29"],
+["5","【為替取引の流れ】④X銀行は、Y銀行に何を郵送する?","為替手形と船積書類",0,1,"p.29"],
+["5","【為替取引の流れ】⑤Bは、Y銀行で何と引き換えに2万ドルを支払う?","船積書類",0,1,"p.29"],
+["5","【為替取引の流れ】⑥Y銀行は、Bが支払った2万ドルを、どこの口座に支払う?","X銀行の口座",0,1,"p.29"],
+["5","【為替取引の流れ】⑦Bは、船積書類を何に提示して貨物を引き取る?","船会社",0,1,"p.29"],
+["5","信用状は、英語の略称で何という?","L/C",0,0,"p.29"],
+["5","（　　　）…異なる通貨の交換比率。","外国為替相場",0,1,"p.29"],
+["5","外国為替相場は、別名何という?","為替レート",0,1,"p.29"],
+["6","①（　　　）…為替相場を、各国間の合意に基づき固定する。","固定相場制",0,1,"p.30"],
+["6","【固定相場制】1ドル=（　　　）円。","360",0,1,"p.30"],
+["6","【固定相場制】1ドル=360円の固定相場制は、何年から何年まで?","1949年〜1971年",0,1,"p.30"],
+["6","②（　　　）…為替相場が、通貨の需要と供給によって決められる。","変動相場制",0,1,"p.30"],
+["6","変動相場制では、為替相場は何によって決まる?","通貨の需要と供給",0,0,"p.30"],
+["6","【1ドル=120円】アメリカへの海外旅行をしたい人が増えると、ドルの（需要／供給）が増加する。","需要",0,1,"p.30"],
+["6","【1ドル=120円】ドルの需要が増加すると、ドルの価値は（上がる／下がる）。","上がる",0,1,"p.30"],
+["6","【1ドル=120円】ドルの価値が上がると、1ドル=（90円／150円）になる。","150円",0,1,"p.30"],
+["6","【1ドル=120円】1ドル=150円になると、円（高／安）ドル（高／安）?","円安・ドル高",0,1,"p.30"],
+["6","【1ドル=120円】日本企業がアメリカ企業から受け取ったドルを円に換えると、ドルの（需要／供給）が増加する。","供給",0,1,"p.30"],
+["6","【1ドル=120円】ドルの供給が増加すると、ドルの価値は（上がる／下がる）。","下がる",0,1,"p.30"],
+["6","【1ドル=120円】ドルの価値が下がると、1ドル=（90円／150円）になる。","90円",0,1,"p.30"],
+["6","【1ドル=120円】1ドル=90円になると、円（高／安）ドル（高／安）?","円高・ドル安",0,1,"p.30"],
+["6","（　　　）…円の価値が高くなること。","円高",0,1,"p.30"],
+["6","【円高の例】1ドル=100円 → 1ドル=（　　　）円。","90",0,1,"p.30"],
+["6","（　　　）…円の価値が低くなること。","円安",0,1,"p.30"],
+["6","【円安の例】1ドル=100円 → 1ドル=（　　　）円。","110",0,1,"p.30"],
+["6","1ドル=100円から1ドル=90円になった。円高?円安?","円高(少ない円で1ドルが買える=円の価値が上がった)",0,0,"p.30"],
+["6","1ドル=100円から1ドル=110円になった。円高?円安?","円安(1ドルを買うのに多くの円が必要=円の価値が下がった)",0,0,"p.30"],
+["6","【為替の変動】輸入＜輸出のとき、為替は?","円高・ドル安","ノートには「円安・ドル高」と書いてあります。でも、輸出が多いと、受け取ったドルを円に換える人が増える(ドルの供給が増える)ので、ふつうは円高・ドル安です。先生に確かめてください。",1,"p.30"],
+["6","【為替の変動】輸入＞輸出のとき、為替は?","円安・ドル高","ノートには「円高・ドル安」と書いてあります。でも、輸入が多いと、ドルを買う人が増える(ドルの需要が増える)ので、ふつうは円安・ドル高です。先生に確かめてください。",1,"p.30"],
+["6","【為替の変動】アメリカから日本への旅行者が増えると、為替は?","円高・ドル安",0,1,"p.30"],
+["6","【為替の変動】日本からアメリカへの旅行者が増えると、為替は?","円安・ドル高",0,1,"p.30"],
+["6","【為替の変動】日本の金利が上昇すると、為替は?","円高・ドル安",0,1,"p.30"],
+["6","【為替の変動】アメリカの金利が上昇すると、為替は?","円安・ドル高",0,1,"p.30"]
+];
+var CARDS = RAW.map(function (r, i) {
+  return { id: r[0] + "-" + (i + 1), sec: r[0], q: r[1], a: r[2], note: typeof r[3] === "string" ? r[3] : null, hand: r[4] === 1, page: r[5] || "" };
+});
+var LS_KEY = "kokyo-ichimon-kokusai-v1";
+var state = { review: [], ok: {}, order: "random" };
+function loadState() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    var s = JSON.parse(raw);
+    if (s && Array.isArray(s.review)) state = { review: s.review.slice(), ok: Object.assign({}, s.ok || {}), order: s.order === "order" ? "order" : "random" };
+  } catch (e) {}
+}
+function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+
+var view = "home", session = null;
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function secOf(id) { return SECTIONS.filter(function (s) { return s.id === id; })[0]; }
+function cardsOfSec(id) { return CARDS.filter(function (c) { return c.sec === id; }); }
+function reviewCards() { return CARDS.filter(function (c) { return state.review.indexOf(c.id) >= 0; }); }
+
+function start(cards, mode, label) {
+  if (!cards.length) return;
+  session = { cards: state.order === "order" && mode !== "review" ? cards.slice() : shuffle(cards), i: 0, mode: mode, label: label, okN: 0, missN: 0, shown: false, lockUntil: 0 };
+  view = "quiz";
+  render();
+}
+function reveal() { session.shown = true; session.lockUntil = Date.now() + 450; render(); }
+function answer(good) {
+  if (Date.now() < session.lockUntil) return;
+  var c = session.cards[session.i];
+  if (good) {
+    session.okN++;
+    state.ok[c.id] = (state.ok[c.id] || 0) + 1;
+    if (session.mode === "review") state.review = state.review.filter(function (x) { return x !== c.id; });
+  } else {
+    session.missN++;
+    if (state.review.indexOf(c.id) < 0) state.review.push(c.id);
+  }
+  session.i++;
+  session.shown = false;
+  if (session.i >= session.cards.length) view = "result";
+  render();
+  window.scrollTo(0, 0);
+  save();
+}
+
+function el(tag, props, kids) {
+  var e = document.createElement(tag);
+  if (props) Object.keys(props).forEach(function (k) {
+    if (props[k] === null || props[k] === undefined) return;
+    if (k === "class") e.className = props[k];
+    else if (k === "text") e.textContent = props[k];
+    else if (k.slice(0, 2) === "on") e.addEventListener(k.slice(2), props[k]);
+    else e.setAttribute(k, props[k]);
+  });
+  (kids || []).forEach(function (c) { if (c) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+  return e;
+}
+
+function renderHome() {
+  var rc = reviewCards();
+  var optBtns = [["ランダム", "random"], ["順番どおり", "order"]].map(function (x) {
+    return el("button", { type: "button", text: x[0], "aria-pressed": String(state.order === x[1]), onclick: function () { state.order = x[1]; save(); render(); } });
+  });
+  var secBtns = SECTIONS.map(function (s) {
+    var all = cardsOfSec(s.id);
+    var done = all.filter(function (c) { return state.ok[c.id] > 0 && state.review.indexOf(c.id) < 0; }).length;
+    return el("button", { type: "button", class: "sec-btn", onclick: function () { start(all, "normal", s.name); } }, [
+      el("div", null, [el("div", { class: "nm", text: s.id + ". " + s.name }), el("div", { class: "pg", text: "プリント " + s.page + " ・ " + all.length + "問" })]),
+      el("div", { class: "st", text: "できた " + done + " / " + all.length }),
+      el("div", { class: "bar" }, [el("i", { style: "width:" + Math.round(done / all.length * 100) + "%" })])
+    ]);
+  });
+  var review = el("button", { type: "button", class: "review-card", onclick: function () { start(rc, "review", "復習フォルダ"); } }, [
+    el("div", null, [el("div", { class: "big", text: "復習フォルダ" }), el("small", { text: rc.length ? "まちがえた問題だけ出題。「できた」で外れます" : "まちがえた問題がここにたまります" })]),
+    el("div", { class: "count", text: String(rc.length) })
+  ]);
+  if (!rc.length) review.setAttribute("disabled", "");
+  return el("div", { class: "home" }, [
+    el("div", { class: "title-row" }, [el("h1", { text: "公共 一問一答(国際経済)" }), el("div", { class: "sub", text: "国際経済 p.25-30 ・ " + CARDS.length + "問" })]),
+    review,
+    el("div", { class: "opt" }, [el("span", { text: "出す順番" }), el("div", { class: "seg", role: "group", "aria-label": "出す順番" }, optBtns)]),
+    el("div", { class: "sec-list" }, secBtns),
+    el("button", { type: "button", class: "all-btn", text: "ぜんぶ出題(" + CARDS.length + "問)", onclick: function () { start(CARDS, "normal", "ぜんぶ"); } }),
+    el("p", { class: "note", text: "問題を読んで、頭の中や紙に答えを書いてから「答えを見る」を押します。合っていたかは自分で選びます。進み具合は、このスマホの中に保存されます。" })
+  ]);
+}
+
+function renderQuiz() {
+  var c = session.cards[session.i];
+  var tags = [];
+  if (session.shown) tags.push(el("span", { class: "chip", text: secOf(c.sec).id + ". " + secOf(c.sec).name }));
+  if (session.shown && c.page) tags.push(el("span", { class: "chip sub2", text: c.page }));
+  if (session.shown && c.hand) tags.push(el("span", { class: "chip sub2", text: "✎ ノートの手書き" }));
+  if (session.mode === "review") tags.push(el("span", { class: "chip warn", text: "復習" }));
+  var kids = (tags.length ? [el("div", { class: "tag" }, tags)] : []).concat([el("p", { class: "q", text: c.q })]);
+  if (session.shown) kids.push(el("div", { class: "a-box" }, [el("span", { class: "a-lbl", text: "答え" }), c.a]));
+  if (session.shown && c.note) kids.push(el("p", { class: "pending-note", text: c.note }));
+  var top = el("div", { class: "topbar" }, [
+    el("div", { class: "row" }, [
+      el("button", { type: "button", class: "back", text: "‹ もどる", onclick: function () { view = "home"; render(); } }),
+      el("div", { class: "counter", text: (session.i + 1) + " / " + session.cards.length })
+    ]),
+    el("div", { class: "bar" }, [el("i", { style: "width:" + Math.round(session.i / session.cards.length * 100) + "%" })])
+  ]);
+  var actions = session.shown
+    ? el("div", { class: "actions two" }, [
+        el("button", { type: "button", class: "act miss", text: "まちがえた", onclick: function () { answer(false); } }),
+        el("button", { type: "button", class: "act ok", text: "できた", onclick: function () { answer(true); } })
+      ])
+    : el("div", { class: "actions" }, [el("button", { type: "button", class: "act reveal", text: "答えを見る", onclick: reveal })]);
+  return el("div", { class: "quiz" }, [top, el("div", { class: "card" }, kids), actions]);
+}
+
+function renderResult() {
+  var rc = reviewCards();
+  var btns = [];
+  if (rc.length) btns.push(el("button", { type: "button", class: "btn2 primary", text: "復習フォルダを出題(" + rc.length + "問)", onclick: function () { start(rc, "review", "復習フォルダ"); } }));
+  btns.push(el("button", { type: "button", class: "btn2" + (rc.length ? "" : " primary"), text: "もう一度", onclick: function () { start(session.cards, session.mode, session.label); } }));
+  btns.push(el("button", { type: "button", class: "btn2", text: "ホームへ", onclick: function () { view = "home"; render(); } }));
+  return el("div", { class: "result" }, [
+    el("h2", { text: session.label + " おつかれさま" }),
+    el("div", { class: "score" }, [
+      el("div", { class: "ok" }, [el("b", { text: String(session.okN) }), "できた"]),
+      el("div", { class: "miss" }, [el("b", { text: String(session.missN) }), "まちがえた"])
+    ]),
+    el("div", { class: "btns" }, btns)
+  ]);
+}
+
+function render() {
+  var app = document.getElementById("app");
+  app.textContent = "";
+  app.appendChild(view === "home" ? renderHome() : view === "quiz" ? renderQuiz() : renderResult());
+}
+loadState();
+render();
+</script></body></html>
