@@ -35,3 +35,4 @@ node tests/test.js
 - `ichimon/kokyo/` 公共・憲法編(穴埋めを1か所ずつにした一問一答、354問)
 - `ichimon/kagaku/` 化学編(原子量・物質量・化学結合、答えの下に解説つき、103問)
 - `ichimon/kokyo2/` 公共・国際経済編(p.25-30、手書きの答えも問題化、126問)
+- `ichimon/eigo2/` 英語(論理・表現)7-1〜8-2編(p.53-67、問題・覚えるポイント・Vocabulary)
