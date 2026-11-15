@@ -1,0 +1,63 @@
+<title>二学期期末 ドリル一覧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --paper:#f3f5f9; --sheet:#fff; --ink:#1c2540; --soft:#5a6684; --line:#cbd4e6;
+  --font-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif; --font-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper:#0f1626; --sheet:#172036; --ink:#e8ecf6; --soft:#9aa6c4; --line:#2f3d63; color-scheme:dark; } }
+:root[data-theme="dark"] { --paper:#0f1626; --sheet:#172036; --ink:#e8ecf6; --soft:#9aa6c4; --line:#2f3d63; color-scheme:dark; }
+* { box-sizing:border-box; }
+body { background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:16px; line-height:1.7; padding-inline:16px; }
+#hub { max-width:560px; margin:0 auto; padding-block:24px 48px; }
+h1 { font-family:var(--font-display); font-weight:900; font-size:26px; margin:0 0 4px; }
+.lead { color:var(--soft); font-size:13px; margin:0 0 18px; }
+h2 { font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--soft); margin:22px 0 8px; }
+.grid { display:grid; gap:10px; }
+a.d { display:grid; grid-template-columns:auto 1fr auto; gap:2px 12px; align-items:center; text-decoration:none; color:inherit; background:var(--sheet); border:1.5px solid var(--line); border-radius:14px; padding:14px 16px; min-height:64px; border-left:8px solid var(--c); }
+a.d:active { transform:translateY(1px); }
+a.d:focus-visible { outline:3px solid var(--c); outline-offset:2px; }
+.sub { font-family:var(--font-display); font-weight:900; font-size:13px; color:#fff; background:var(--c); border-radius:999px; padding:1px 12px; white-space:nowrap; }
+.nm { font-family:var(--font-display); font-weight:700; font-size:17px; line-height:1.4; overflow-wrap:anywhere; }
+.pg { grid-column:2; font-size:12px; color:var(--soft); line-height:1.4; }
+.go { grid-row:1 / span 2; grid-column:3; font-size:20px; color:var(--c); font-weight:900; }
+.big a.d { padding-block:18px; }
+.big .nm { font-size:19px; }
+</style>
+<div id="hub"></div>
+<script>
+var B = "__BASE__";
+var NEW = [
+  ["公共", "#2e7d4f", "国際経済① 一問一答", "冊子 p.25-30 ・ 126問", "ichimon/kokyo2/"],
+  ["公共", "#2e7d4f", "国際経済②・日本経済 一問一答", "冊子 p.31-44 + 課題プリント③④ ・ 344問", "ichimon/kokyo3/"],
+  ["英語", "#1f6fb8", "論理・表現 一問一答", "Lesson 7-1〜8-2 ・ 問題・ポイント・単語", "ichimon/eigo2/"]
+];
+var OLD = [
+  ["公共", "#8a5a9c", "憲法 一問一答", "ichimon/kenpo/"],
+  ["公共", "#8a5a9c", "憲法 穴埋め一問一答", "ichimon/kokyo/"],
+  ["公共", "#8a5a9c", "穴埋めドリル(第3章)", "page.html"],
+  ["公民", "#b8742a", "経済編 一問一答", "ichimon/keizai/"],
+  ["公民", "#b8742a", "金融編 一問一答", "ichimon/kinyu/"],
+  ["化学", "#c2493a", "一問一答(原子量・物質量・化学結合)", "ichimon/kagaku/"],
+  ["英語", "#4a7fb0", "テスト直前まとめ", "eigo/"],
+  ["古典", "#7a6a3a", "テスト直前まとめ", "koten/"]
+];
+function card(sub, c, nm, pg, href) {
+  var a = document.createElement("a");
+  a.className = "d"; a.href = B + href; a.style.setProperty("--c", c);
+  if (B.indexOf("http") === 0) { a.target = "_blank"; a.rel = "noopener"; }
+  [["span", "sub", sub], ["span", "nm", nm]].forEach(function (x) { var e = document.createElement(x[0]); e.className = x[1]; e.textContent = x[2]; a.appendChild(e); });
+  var g = document.createElement("span"); g.className = "go"; g.textContent = "›"; a.appendChild(g);
+  if (pg) { var p = document.createElement("span"); p.className = "pg"; p.textContent = pg; a.insertBefore(p, g); }
+  return a;
+}
+function section(title, cls, items, mk) {
+  var h = document.createElement("h2"); h.textContent = title; root.appendChild(h);
+  var g = document.createElement("div"); g.className = "grid " + cls;
+  items.forEach(function (it) { g.appendChild(mk(it)); }); root.appendChild(g);
+}
+var root = document.getElementById("hub");
+var h1 = document.createElement("h1"); h1.textContent = "二学期期末 ドリル一覧"; root.appendChild(h1);
+var lead = document.createElement("p"); lead.className = "lead"; lead.textContent = "教科のボタンをおすと、そのドリルが開きます。"; root.appendChild(lead);
+section("今回の期末テスト用", "big", NEW, function (i) { return card(i[0], i[1], i[2], i[3], i[4]); });
+section("これまでのドリル", "", OLD, function (i) { return card(i[0], i[1], i[2], "", i[3]); });
+</script>
