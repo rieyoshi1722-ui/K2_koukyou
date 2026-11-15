@@ -21,25 +21,28 @@ a.d:focus-visible { outline:3px solid var(--c); outline-offset:2px; }
 .pg { grid-column:2; font-size:12px; color:var(--soft); line-height:1.4; }
 .go { grid-row:1 / span 2; grid-column:3; font-size:20px; color:var(--c); font-weight:900; }
 .big a.d { padding-block:18px; }
+.old a.d, a.d.old { border-left-color:var(--c); }
+.old .sub { color:#1c3a7a; }
+.old .go { color:#6f8bc9; }
 .big .nm { font-size:19px; }
 </style>
 <div id="hub"></div>
 <script>
 var B = "__BASE__";
 var NEW = [
-  ["公民", "#2e7d4f", "国際経済① 一問一答", "冊子 p.25-30 ・ 126問", "ichimon/kokyo2/"],
-  ["公民", "#2e7d4f", "国際経済②・日本経済 一問一答", "冊子 p.31-44 + 課題プリント③④ ・ 344問", "ichimon/kokyo3/"],
-  ["英語", "#1f6fb8", "論理・表現 一問一答", "Lesson 7-1〜8-2 ・ 問題・ポイント・単語", "ichimon/eigo2/"]
+  ["公民", "#b8322a", "国際経済① 一問一答", "冊子 p.25-30 ・ 126問", "ichimon/kokyo2/"],
+  ["公民", "#b8322a", "国際経済②・日本経済 一問一答", "冊子 p.31-44 + 課題プリント③④ ・ 344問", "ichimon/kokyo3/"],
+  ["英語", "#b8322a", "論理・表現 一問一答", "Lesson 7-1〜8-2 ・ 問題・ポイント・単語", "ichimon/eigo2/"]
 ];
 var OLD = [
-  ["公共", "#8a5a9c", "憲法 一問一答", "ichimon/kenpo/"],
-  ["公共", "#8a5a9c", "憲法 穴埋め一問一答", "ichimon/kokyo/"],
-  ["公共", "#8a5a9c", "穴埋めドリル(第3章)", "page.html"],
-  ["公民", "#b8742a", "経済編 一問一答", "ichimon/keizai/"],
-  ["公民", "#b8742a", "金融編 一問一答", "ichimon/kinyu/"],
-  ["化学", "#c2493a", "一問一答(原子量・物質量・化学結合)", "ichimon/kagaku/"],
-  ["英語", "#4a7fb0", "テスト直前まとめ", "eigo/"],
-  ["古典", "#7a6a3a", "テスト直前まとめ", "koten/"]
+  ["公共", "#9db3e0", "憲法 一問一答", "ichimon/kenpo/"],
+  ["公共", "#9db3e0", "憲法 穴埋め一問一答", "ichimon/kokyo/"],
+  ["公共", "#9db3e0", "穴埋めドリル(第3章)", "page.html"],
+  ["公民", "#9db3e0", "経済編 一問一答", "ichimon/keizai/"],
+  ["公民", "#9db3e0", "金融編 一問一答", "ichimon/kinyu/"],
+  ["化学", "#9db3e0", "一問一答(原子量・物質量・化学結合)", "ichimon/kagaku/"],
+  ["英語", "#9db3e0", "テスト直前まとめ", "eigo/"],
+  ["古典", "#9db3e0", "テスト直前まとめ", "koten/"]
 ];
 function card(sub, c, nm, pg, href) {
   var a = document.createElement("a");
@@ -59,5 +62,5 @@ var root = document.getElementById("hub");
 var h1 = document.createElement("h1"); h1.textContent = "二学期期末 ドリル一覧"; root.appendChild(h1);
 var lead = document.createElement("p"); lead.className = "lead"; lead.textContent = "教科のボタンをおすと、そのドリルが開きます。"; root.appendChild(lead);
 section("今回の期末テスト用", "big", NEW, function (i) { return card(i[0], i[1], i[2], i[3], i[4]); });
-section("これまでのドリル", "", OLD, function (i) { return card(i[0], i[1], i[2], "", i[3]); });
+section("これまでのドリル(中間テストまで)", "old", OLD, function (i) { return card(i[0], i[1], i[2], "", i[3]); });
 </script>
