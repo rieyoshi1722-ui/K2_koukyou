@@ -113,5 +113,10 @@ h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
 .speak-row { display: flex; gap: 8px; margin-top: 12px; }
 .speak-b { flex: 1; min-height: 48px; padding: 8px 12px; border-radius: 12px; border: 2px solid var(--accent); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 16px; background: var(--sheet); }
 .speak-b.stop { flex: none; padding-inline: 16px; }
+.trans { margin: 4px 0 0; font-size: 16px; color: var(--ink-soft); overflow-wrap: anywhere; }
+.voice-box { background: var(--sheet); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+.voice-box summary { cursor: pointer; font-weight: 700; color: var(--accent); }
+.voice-row { display: grid; gap: 4px; margin-top: 10px; font-size: 13px; color: var(--ink-soft); }
+.voice-sel { width: 100%; padding: 8px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font-size: 15px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>

@@ -1,13 +1,13 @@
 var CARDS = RAW.map(function (r, i) { r.id = r.s + "-" + (i + 1); r.sec = r.s; r.page = r.p; return r; });
 var pick = null;
 var LS_KEY = "eigo2-ichimon-v1";
-var state = { review: [], ok: {}, order: "order", auto: false };
+var state = { review: [], ok: {}, order: "order", auto: false, vja: "", ven: "" };
 function loadState() {
   try {
     var raw = localStorage.getItem(LS_KEY);
     if (!raw) return;
     var s = JSON.parse(raw);
-    if (s && Array.isArray(s.review)) state = { review: s.review.slice(), ok: Object.assign({}, s.ok || {}), order: s.order === "random" ? "random" : "order", auto: s.auto === true };
+    if (s && Array.isArray(s.review)) state = { review: s.review.slice(), ok: Object.assign({}, s.ok || {}), order: s.order === "random" ? "random" : "order", auto: s.auto === true, vja: s.vja || "", ven: s.ven || "" };
   } catch (e) {}
 }
 function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
@@ -32,28 +32,62 @@ function start(cards, mode, label) {
 var CAN_SPEAK = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
 function stopSpeak() { if (CAN_SPEAK) { try { speechSynthesis.cancel(); } catch (e) {} } }
 function cleanJa(t) { return String(t).replace(/[＝=]/g, " は、").replace(/[〜~→]/g, " ").replace(/[()（）「」]/g, " ").replace(/\//g, "、").replace(/\n/g, "。"); }
-function speakCard(c) {
-  if (!CAN_SPEAK) return;
-  stopSpeak();
-  var parts = [];
-  var isVocab = c.s === "v1" || c.s === "v2";
-  var en = isVocab ? (c.s === "v1" ? c.en : c.a) : (c.full ? c.full.split("(")[0] : "");
-  parts.push(["答えは、", "ja-JP"]);
-  if (c.opts && !isVocab) parts.push([c.opts[c.ok], "en-US"]);
-  else if (isVocab) parts.push([en, "en-US"]);
-  else if (en && /[A-Za-z]/.test(en)) parts.push([en, "en-US"]);
-  else parts.push([cleanJa(c.a), "ja-JP"]);
-  if (isVocab) parts.push([c.s === "v1" ? c.a : c.jp, "ja-JP"]);
-  else {
-    if (c.opts && c.full) parts.push([en, "en-US"]);
-    if (c.exp) parts.push(["解説。" + cleanJa(c.exp), "ja-JP"]);
-  }
+function trOf(c) {
+  if (c.s === "v1" || c.s === "v2") return "";
+  var full = c.full || "", m = full.match(/^(.*?)\((.*)\)$/), en = m ? m[1] : full;
+  if (typeof TR !== "undefined" && TR[en]) return TR[en];
+  if (c.jp) return c.jp;
+  return m && !/Vocabulary|選ぶ/.test(m[2]) ? m[2] : "";
+}
+function enOf(c) {
+  var full = c.full || "", m = full.match(/^(.*?)\((.*)\)$/);
+  return (m ? m[1] : full).trim();
+}
+var VOICES = [];
+function loadVoices() { try { VOICES = CAN_SPEAK ? speechSynthesis.getVoices() : []; } catch (e) { VOICES = []; } }
+function voicesOf(lang) { var p = lang.slice(0, 2).toLowerCase(); return VOICES.filter(function (v) { return v.lang && v.lang.slice(0, 2).toLowerCase() === p; }); }
+function scoreVoice(v) {
+  var n = v.name || "", sc = 0;
+  if (/premium|enhanced|neural|natural|online|拡張|プレミアム/i.test(n)) sc += 20;
+  if (/kyoko|o-ren|otoya|samantha|ava|allison|nicky|karen|moira|serena|siri|google/i.test(n)) sc += 8;
+  if (/compact/i.test(n)) sc -= 5;
+  return sc;
+}
+function pickVoice(lang, saved) {
+  var list = voicesOf(lang);
+  if (!list.length) return null;
+  if (saved) { var s = list.filter(function (v) { return v.name === saved; })[0]; if (s) return s; }
+  return list.slice().sort(function (a, b) { return scoreVoice(b) - scoreVoice(a); })[0];
+}
+if (CAN_SPEAK) { loadVoices(); try { speechSynthesis.addEventListener("voiceschanged", function () { loadVoices(); if (view === "home") render(); }); } catch (e) {} }
+function sayAll(parts) {
   parts.forEach(function (x) {
     if (!x[0] || !String(x[0]).trim()) return;
     var u = new SpeechSynthesisUtterance(x[0]);
-    u.lang = x[1]; u.rate = x[1] === "en-US" ? 0.9 : 1;
+    u.lang = x[1];
+    var v = pickVoice(x[1], x[1] === "en-US" ? state.ven : state.vja);
+    if (v) { u.voice = v; u.lang = v.lang; }
+    u.rate = x[1] === "en-US" ? 0.9 : 0.95;
+    u.pitch = 1.05;
     speechSynthesis.speak(u);
   });
+}
+function speakCard(c) {
+  if (!CAN_SPEAK) return;
+  stopSpeak();
+  var parts = [["答えは、", "ja-JP"]];
+  var isVocab = c.s === "v1" || c.s === "v2";
+  if (isVocab) {
+    parts.push([c.s === "v1" ? c.en : c.a, "en-US"]);
+    parts.push([c.s === "v1" ? c.a : c.jp, "ja-JP"]);
+  } else {
+    var en = enOf(c), tr = trOf(c);
+    if (c.opts) parts.push([c.opts[c.ok], "en-US"]);
+    if (en && /[A-Za-z]/.test(en)) parts.push([en, "en-US"]); else parts.push([cleanJa(c.a), "ja-JP"]);
+    if (tr) parts.push(["和訳。" + cleanJa(tr), "ja-JP"]);
+    if (c.exp) parts.push(["解説。" + cleanJa(c.exp), "ja-JP"]);
+  }
+  sayAll(parts);
 }
 function reveal() { session.shown = true; session.lockUntil = Date.now() + 450; render(); if (state.auto) speakCard(session.cards[session.i]); }
 function answer(good) {
@@ -89,6 +123,19 @@ function el(tag, props, kids) {
   return e;
 }
 
+function voiceSel(label, lang, key) {
+  var list = voicesOf(lang), cur = pickVoice(lang, state[key]);
+  var sel = el("select", { class: "voice-sel", "aria-label": label, onchange: function (e) { state[key] = e.target.value; save(); speakCard({ s: "v1", en: lang === "en-US" ? "Hello. Nice to meet you." : "", a: lang === "en-US" ? "" : "こんにちは。いっしょにがんばりましょう。" , jp: "" }); } },
+    list.map(function (v) { var o = el("option", { value: v.name, text: v.name }); if (cur && cur.name === v.name) o.setAttribute("selected", ""); return o; }));
+  return el("label", { class: "voice-row" }, [el("span", { text: label }), sel]);
+}
+function renderVoiceSettings() {
+  var kids = [el("summary", { text: "声の設定(やわらかい声をえらぶ)" })];
+  if (voicesOf("ja-JP").length) kids.push(voiceSel("日本語の声", "ja-JP", "vja"));
+  if (voicesOf("en-US").length) kids.push(voiceSel("英語の声", "en-US", "ven"));
+  kids.push(el("p", { class: "note", text: "「拡張」「Enhanced」「Premium」とついた声が、やわらかく聞こえます。声は、えらぶとためし読みします。iPhoneでは「設定」→「アクセシビリティ」→「読み上げコンテンツ」→「声」で、声を追加できます。" }));
+  return el("details", { class: "voice-box" }, kids);
+}
 function renderHome() {
   var rc = reviewCards();
   var optBtns = [["ランダム", "random"], ["順番どおり", "order"]].map(function (x) {
@@ -118,6 +165,7 @@ function renderHome() {
     CAN_SPEAK ? el("div", { class: "opt" }, [el("span", { text: "答えを声で読む" }), el("div", { class: "seg", role: "group", "aria-label": "答えを声で読む" }, [["自動で読む", true], ["ボタンで読む", false]].map(function (x) {
       return el("button", { type: "button", text: x[0], "aria-pressed": String(state.auto === x[1]), onclick: function () { state.auto = x[1]; save(); render(); } });
     }))]) : null,
+    (CAN_SPEAK && VOICES.length) ? renderVoiceSettings() : null,
     el("div", { class: "opt" }, [el("span", { text: "出す順番" }), el("div", { class: "seg", role: "group", "aria-label": "出す順番" }, optBtns)]),
     el("div", { class: "sec-list" }, secBtns),
     el("p", { class: "note", text: "問題を読んで、頭の中や紙に答えを書いてから「答えを見る」を押します。えらぶ問題は、えらんでから押してね。合っていたかは自分で選びます。進み具合は、このスマホの中に保存されます。" })
@@ -152,7 +200,9 @@ function renderQuiz() {
       el("button", { type: "button", class: "speak-b stop", text: "■ とめる", onclick: stopSpeak })
     ]));
     if (c.opts && pick !== null) kids.push(el("p", { class: "note", text: pick === c.ok ? "◎ えらんだ答えは正解!" : "えらんだのは「" + KANA[pick] + "」でした。" }));
-    if (c.full) kids.push(el("p", { class: "full", text: c.full }));
+    var _en = enOf(c), _tr = trOf(c);
+    if (c.full) kids.push(el("p", { class: "full", text: _en || c.full }));
+    if (_tr) kids.push(el("p", { class: "trans", text: "和訳:" + _tr }));
     if (c.exp) kids.push(el("div", { class: "exp" }, [el("span", { class: "a-lbl", text: "解説" }), c.exp]));
     if (c.note) kids.push(el("p", { class: "pending-note", text: c.note }));
   }
