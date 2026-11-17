@@ -111,6 +111,9 @@ h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
 .sec-btn.note-b { border-style: dashed; background: var(--paper); }
 .sec-btn.note-b .nm::before { content: "📘 "; }
 .sec-btn.vocab-b .nm::before { content: "🔤 "; }
+.speak-row { display: flex; gap: 8px; margin-top: 12px; }
+.speak-b { flex: 1; min-height: 48px; padding: 8px 12px; border-radius: 12px; border: 2px solid var(--accent); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 16px; background: var(--sheet); }
+.speak-b.stop { flex: none; padding-inline: 16px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head><body><div id="app"></div><script>
@@ -406,13 +409,13 @@ var NOTES = {
 var CARDS = RAW.map(function (r, i) { r.id = r.s + "-" + (i + 1); r.sec = r.s; r.page = r.p; return r; });
 var pick = null;
 var LS_KEY = "eigo2-ichimon-v1";
-var state = { review: [], ok: {}, order: "order" };
+var state = { review: [], ok: {}, order: "order", auto: false };
 function loadState() {
   try {
     var raw = localStorage.getItem(LS_KEY);
     if (!raw) return;
     var s = JSON.parse(raw);
-    if (s && Array.isArray(s.review)) state = { review: s.review.slice(), ok: Object.assign({}, s.ok || {}), order: s.order === "random" ? "random" : "order" };
+    if (s && Array.isArray(s.review)) state = { review: s.review.slice(), ok: Object.assign({}, s.ok || {}), order: s.order === "random" ? "random" : "order", auto: s.auto === true };
   } catch (e) {}
 }
 function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
@@ -428,13 +431,41 @@ function cardsOfSec(id) { return CARDS.filter(function (c) { return c.sec === id
 function reviewCards() { return CARDS.filter(function (c) { return state.review.indexOf(c.id) >= 0; }); }
 
 function start(cards, mode, label) {
+  stopSpeak();
   if (!cards.length) return;
   session = { cards: state.order === "order" && mode !== "review" ? cards.slice() : shuffle(cards), i: 0, mode: mode, label: label, okN: 0, missN: 0, shown: false, lockUntil: 0 };
   view = "quiz"; pick = null;
   render();
 }
-function reveal() { session.shown = true; session.lockUntil = Date.now() + 450; render(); }
+var CAN_SPEAK = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+function stopSpeak() { if (CAN_SPEAK) { try { speechSynthesis.cancel(); } catch (e) {} } }
+function cleanJa(t) { return String(t).replace(/[＝=]/g, " は、").replace(/[〜~→]/g, " ").replace(/[()（）「」]/g, " ").replace(/\//g, "、").replace(/\n/g, "。"); }
+function speakCard(c) {
+  if (!CAN_SPEAK) return;
+  stopSpeak();
+  var parts = [];
+  var isVocab = c.s === "v1" || c.s === "v2";
+  var en = isVocab ? (c.s === "v1" ? c.en : c.a) : (c.full ? c.full.split("(")[0] : "");
+  parts.push(["答えは、", "ja-JP"]);
+  if (c.opts && !isVocab) parts.push([c.opts[c.ok], "en-US"]);
+  else if (isVocab) parts.push([en, "en-US"]);
+  else if (en && /[A-Za-z]/.test(en)) parts.push([en, "en-US"]);
+  else parts.push([cleanJa(c.a), "ja-JP"]);
+  if (isVocab) parts.push([c.s === "v1" ? c.a : c.jp, "ja-JP"]);
+  else {
+    if (c.opts && c.full) parts.push([en, "en-US"]);
+    if (c.exp) parts.push(["解説。" + cleanJa(c.exp), "ja-JP"]);
+  }
+  parts.forEach(function (x) {
+    if (!x[0] || !String(x[0]).trim()) return;
+    var u = new SpeechSynthesisUtterance(x[0]);
+    u.lang = x[1]; u.rate = x[1] === "en-US" ? 0.9 : 1;
+    speechSynthesis.speak(u);
+  });
+}
+function reveal() { session.shown = true; session.lockUntil = Date.now() + 450; render(); if (state.auto) speakCard(session.cards[session.i]); }
 function answer(good) {
+  stopSpeak();
   if (Date.now() < session.lockUntil) return;
   var c = session.cards[session.i];
   if (good) {
@@ -492,6 +523,9 @@ function renderHome() {
   return el("div", { class: "home" }, [
     el("div", { class: "title-row" }, [el("h1", { text: "英語 論理・表現 一問一答" }), el("div", { class: "sub", text: "Lesson 7-1〜8-2 ・ " + CARDS.length + "問" })]),
     review,
+    CAN_SPEAK ? el("div", { class: "opt" }, [el("span", { text: "答えを声で読む" }), el("div", { class: "seg", role: "group", "aria-label": "答えを声で読む" }, [["自動で読む", true], ["ボタンで読む", false]].map(function (x) {
+      return el("button", { type: "button", text: x[0], "aria-pressed": String(state.auto === x[1]), onclick: function () { state.auto = x[1]; save(); render(); } });
+    }))]) : null,
     el("div", { class: "opt" }, [el("span", { text: "出す順番" }), el("div", { class: "seg", role: "group", "aria-label": "出す順番" }, optBtns)]),
     el("div", { class: "sec-list" }, secBtns),
     el("p", { class: "note", text: "問題を読んで、頭の中や紙に答えを書いてから「答えを見る」を押します。えらぶ問題は、えらんでから押してね。合っていたかは自分で選びます。進み具合は、このスマホの中に保存されます。" })
@@ -521,6 +555,10 @@ function renderQuiz() {
   if (session.shown) {
     var ans = c.opts ? KANA[c.ok] + "  " + c.opts[c.ok] : c.a;
     kids.push(el("div", { class: "a-box" }, [el("span", { class: "a-lbl", text: "答え" }), ans]));
+    if (CAN_SPEAK) kids.push(el("div", { class: "speak-row" }, [
+      el("button", { type: "button", class: "speak-b", text: "🔊 声で聞く", onclick: function () { speakCard(c); } }),
+      el("button", { type: "button", class: "speak-b stop", text: "■ とめる", onclick: stopSpeak })
+    ]));
     if (c.opts && pick !== null) kids.push(el("p", { class: "note", text: pick === c.ok ? "◎ えらんだ答えは正解!" : "えらんだのは「" + KANA[pick] + "」でした。" }));
     if (c.full) kids.push(el("p", { class: "full", text: c.full }));
     if (c.exp) kids.push(el("div", { class: "exp" }, [el("span", { class: "a-lbl", text: "解説" }), c.exp]));
@@ -528,7 +566,7 @@ function renderQuiz() {
   }
   var top = el("div", { class: "topbar" }, [
     el("div", { class: "row" }, [
-      el("button", { type: "button", class: "back", text: "‹ もどる", onclick: function () { view = "home"; render(); } }),
+      el("button", { type: "button", class: "back", text: "‹ もどる", onclick: function () { stopSpeak(); view = "home"; render(); } }),
       el("div", { class: "counter", text: (session.i + 1) + " / " + session.cards.length })
     ]),
     el("div", { class: "bar" }, [el("i", { style: "width:" + Math.round(session.i / session.cards.length * 100) + "%" })])
