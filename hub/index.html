@@ -26,12 +26,13 @@ a.d:focus-visible { outline:3px solid var(--c); outline-offset:2px; }
 .old .go { color:#6f8bc9; }
 .big .nm { font-size:19px; }
 </style>
-</head><body><div id="hub"></div>
+<div id="hub"></div>
 <script>
 var B = "../";
 var SUBJ = { "公民":["#b8322a","#eba9a3"], "英語":["#1f6fb8","#a3c6ea"], "公共":["#7a4fa0","#cdb8e3"], "化学":["#2e7d4f","#a9d4bb"], "古典":["#a06a1f","#e3cc9f"] };
 var NEW = [
   ["公民", "", "公民 一問一答", "国際経済・日本経済 ・ 冊子 p.25-44 + 課題プリント③④ ・ 470問", "ichimon/komin/"],
+  ["公共", "", "公共 一問一答", "経済・金融・財政 ・ 冊子 p.1-14 ・ 265問", "ichimon/kokyo-keizai/"],
   ["英語", "", "論理・表現 一問一答", "Lesson 7-1〜8-2 ・ 問題・ポイント・単語", "ichimon/eigo2/"]
 ];
 var OLD = [
@@ -65,4 +66,5 @@ var lead = document.createElement("p"); lead.className = "lead"; lead.textConten
 section("今回の期末テスト用", "big", NEW, function (i) { return card(i[0], i[1], i[2], i[3], i[4], false); });
 section("これまでのドリル(中間テストまで)", "old", OLD, function (i) { return card(i[0], i[1], i[2], "", i[3], true); });
 </script>
+
 </body></html>
